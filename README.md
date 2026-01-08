@@ -14,7 +14,19 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ```bash
    npx expo start
+   npx expo run:android
    ```
+
+npx expo prebuild
+
+3. Clear expo
+
+   ```bash
+   npx expo start --clear
+   
+   ```
+rm -rf node_modules yarn.lock package-lock.json
+
 
 In the output, you'll find options to open the app in a
 

@@ -1,4 +1,3 @@
-import {AxiosRequestHeaders} from 'axios';
 import apiClient from './api-client';
 const BASE_URL = 'http://10.0.2.2:4001';
 
@@ -17,7 +16,7 @@ const post = async (
   route: string,
   {body, type = '', user = {}}: {body: any; type?: string; user?: any},
 ) => {
-  let headers: AxiosRequestHeaders = {Accept: 'application/json'};
+  let headers: any = {Accept: 'application/json'};
   if (user.token) {
     headers.Authorization = `Bearer ${user.token}`;
   }
@@ -38,7 +37,8 @@ const routes = {
   getNews: 'news',
 };
 
-export {routes, get, post};
+export { get, post, routes };
 
-export {login} from './auth';
-export {getNews} from './news';
+  export { login } from './auth';
+  export { getNews } from './news';
+

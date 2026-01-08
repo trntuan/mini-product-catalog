@@ -1,19 +1,21 @@
 import 'react-native-reanimated';
 
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import RootNavigation from './routes/RootNavigation';
-import ReduxProvider from './store';
-import { ThemeProvider } from './theme/useTheme';
 
-export default function RootLayout() {
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import RootNavigation from './app/routes/RootNavigation';
+import ReduxProvider from './app/store';
+import { ThemeProvider } from './app/theme/useTheme';
+
+let Root = function App() {
   return (
     <SafeAreaProvider>
       <ReduxProvider>
-        <ThemeProvider>
-          <RootNavigation />
+        <ThemeProvider >
+      <RootNavigation />
           {/* <NoInternetToast /> */}
         </ThemeProvider>
       </ReduxProvider>
     </SafeAreaProvider>
   );
 }
+export default Root;

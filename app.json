@@ -2,6 +2,7 @@
   "expo": {
     "name": "mini-product-catalog",
     "slug": "mini-product-catalog",
+    "displayName": "Mini Product Catalog",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
