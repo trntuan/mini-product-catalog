@@ -28,11 +28,16 @@ import NetworkExample from '@/app/screens/NetworkExample';
 import Settings from '@/app/screens/Settings';
 import Tasks from '@/app/screens/Tasks';
 import Login from '../screens/auth/Login';
+import ProductDetail from '../screens/products/ProductDetail';
+import Products from '../screens/products/Products';
 import { RootState } from '../store/store';
 
 // Icons for Bottom Tab Navigation
 const homeIcon = ({ color }: { color: ColorValue | undefined }) => (
-  <Ionicons name="list-sharp" size={30} color={color} />
+  <Ionicons name="home-sharp" size={24} color={color} />
+);
+const productsIcon = ({ color }: { color: ColorValue | undefined }) => (
+  <Ionicons name="grid-sharp" size={24} color={color} />
 );
 const networkIcon = ({ color }: { color: ColorValue | undefined }) => (
   <Ionicons name="wifi-sharp" size={24} color={color} />
@@ -44,6 +49,42 @@ const settingsIcon = ({ color }: { color: ColorValue | undefined }) => (
 // Root Navigation
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// Products Stack Navigator (nested)
+function ProductsStack() {
+  const { theme } = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.cardBg,
+        },
+        headerTitleAlign: 'center',
+        headerTitleStyle: {
+          fontFamily: typeVariants.titleLarge.fontFamily,
+          fontSize: 18,
+          color: theme.primary,
+          fontWeight: 'bold',
+        },
+        headerTintColor: theme.primary,
+      }}>
+      <Stack.Screen
+        name="ProductsList"
+        component={Products}
+        options={{
+          title: 'Products',
+        }}
+      />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
+        options={{
+          title: 'Product Details',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
 
 export default function RootNavigation() {
   const { theme } = useTheme();
@@ -86,6 +127,15 @@ export default function RootNavigation() {
             tabBarShowLabel: true,
           }}
         >
+          <Tab.Screen
+            name="Home"
+            component={ProductsStack}
+            options={{
+              headerShown: false,
+              tabBarIcon: productsIcon,
+              // tabBarTestID: 'BottomTab.Products',
+            }}
+          />
           <Tab.Screen
             name="To Do"
             component={Tasks}

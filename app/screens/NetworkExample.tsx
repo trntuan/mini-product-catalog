@@ -1,14 +1,14 @@
 import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {useSelector, useDispatch} from 'react-redux';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {useTheme} from '../theme/useTheme';
 import Layout from '../components/Layout';
 import NetwokExampleCard from '../components/NetwokExampleCard';
 import Text from '../components/Text';
+import { useTheme } from '../theme/useTheme';
 
-import {RootState, AppDispatch} from '../store/store';
-import {fetchUser, createUser} from '../store/dummyNetwork';
+import { createUser, fetchUser } from '../store/dummyNetworkSlice';
+import { AppDispatch, RootState } from '../store/store';
 
 const dummyData = {
   name: 'Harry',
