@@ -6,12 +6,12 @@
 import React, { useEffect } from 'react';
 import { ColorValue, Platform } from 'react-native';
 
-import { NavigationContainer } from '@react-navigation/native';
-// import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // import Icon from 'react-native-vector-icons/Ionicons';
 import { Ionicons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // import {useSelector, useDispatch} from 'react-redux';
 
 // Hook for theme change (Light/Dark Mode)
@@ -22,13 +22,13 @@ import { getSecureValue } from '../utils/keyChain';
 // Redux slice for updating Access Token to store
 import { updateToken } from '@/app/store/userSlice';
 
-// import {RootState} from '../store/store';
 
 // Screens
-// import Login from '../screens/auth/Login';
 import NetworkExample from '@/app/screens/NetworkExample';
 import Settings from '@/app/screens/Settings';
 import Tasks from '@/app/screens/Tasks';
+import Login from '../screens/auth/Login';
+import { RootState } from '../store/store';
 
 // Icons for Bottom Tab Navigation
 const homeIcon = ({ color }: { color: ColorValue | undefined }) => (
@@ -42,13 +42,13 @@ const settingsIcon = ({ color }: { color: ColorValue | undefined }) => (
 );
 
 // Root Navigation
-// const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function RootNavigation() {
   const { theme } = useTheme();
   const dispatch = useDispatch();
-  // const user = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user);
 
   // Copy existing token from local storage to redux store
   useEffect(() => {
@@ -63,63 +63,63 @@ export default function RootNavigation() {
 
   return (
     <NavigationContainer>
-      {/* {user.token ? ( */}
-      <Tab.Navigator
-        screenOptions={{
-          tabBarStyle: {
-            backgroundColor: theme.cardBg,
-            borderTopColor: theme?.layoutBg,
-          },
-          tabBarInactiveTintColor: theme.color,
-          tabBarActiveTintColor: theme.primary,
-          headerStyle: {
-            backgroundColor: theme.cardBg,
-            height: Platform.OS == 'ios' ? 120 : 50,
-          },
-          headerTitleAlign: 'center',
-          headerTitleStyle: {
-            fontFamily: typeVariants.titleLarge.fontFamily,
-            fontSize: 18,
-            color: theme.primary,
-            fontWeight: 'bold',
-          },
-          tabBarShowLabel: true,
-        }}
-      >
-        <Tab.Screen
-          name="To Do"
-          component={Tasks}
-          options={{
-            tabBarIcon: homeIcon,
-            // tabBarTestID: 'BottomTab.ToDo',
+      {user.token ? (
+        <Tab.Navigator
+          screenOptions={{
+            tabBarStyle: {
+              backgroundColor: theme.cardBg,
+              borderTopColor: theme?.layoutBg,
+            },
+            tabBarInactiveTintColor: theme.color,
+            tabBarActiveTintColor: theme.primary,
+            headerStyle: {
+              backgroundColor: theme.cardBg,
+              height: Platform.OS == 'ios' ? 120 : 50,
+            },
+            headerTitleAlign: 'center',
+            headerTitleStyle: {
+              fontFamily: typeVariants.titleLarge.fontFamily,
+              fontSize: 18,
+              color: theme.primary,
+              fontWeight: 'bold',
+            },
+            tabBarShowLabel: true,
           }}
-        />
-        <Tab.Screen
-          name="NetworkExample"
-          component={NetworkExample}
-          options={{
-            tabBarIcon: networkIcon,
-            // tabBarTestID: 'BottomTab.Network',
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={Settings}
-          options={{
-            // headerShown: false,
-            tabBarIcon: settingsIcon,
-            // tabBarTestID: 'BottomTab.Settings',
-          }}
-        />
-      </Tab.Navigator>
-      {/* ) : (
+        >
+          <Tab.Screen
+            name="To Do"
+            component={Tasks}
+            options={{
+              tabBarIcon: homeIcon,
+              // tabBarTestID: 'BottomTab.ToDo',
+            }}
+          />
+          <Tab.Screen
+            name="NetworkExample"
+            component={NetworkExample}
+            options={{
+              tabBarIcon: networkIcon,
+              // tabBarTestID: 'BottomTab.Network',
+            }}
+          />
+          <Tab.Screen
+            name="Settings"
+            component={Settings}
+            options={{
+              // headerShown: false,
+              tabBarIcon: settingsIcon,
+              // tabBarTestID: 'BottomTab.Settings',
+            }}
+          />
+        </Tab.Navigator>
+      ) : (
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
           }}>
           <Stack.Screen name="Login" component={Login} />
         </Stack.Navigator>
-        )} */}
+      )}
     </NavigationContainer>
   );
 }
