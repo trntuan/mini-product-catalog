@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import apiClient from '../services/api-client';
+import {
+  loadProductsFromCache,
+  saveProductsToCache,
+  CachedProductsData,
+} from '../utils/productsCache';
 
 // Types
 export interface Product {
@@ -39,6 +44,7 @@ type ProductsState = {
   sortOption: 'none' | 'price-asc' | 'price-desc' | 'rating-desc';
   categories: string[];
   categoriesLoading: boolean;
+  isOffline: boolean; // Flag to indicate if showing cached data
 };
 
 type ProductDetailState = {
@@ -69,6 +75,7 @@ const initialState: InitialState = {
     sortOption: 'none',
     categories: [],
     categoriesLoading: false,
+    isOffline: false,
   },
   productDetail: {
     status: 'idle',
@@ -78,14 +85,52 @@ const initialState: InitialState = {
 };
 
 // Async Thunks
+export const loadCachedProducts = createAsyncThunk(
+  'products/loadCachedProducts',
+  async () => {
+    const cachedData = await loadProductsFromCache();
+    if (cachedData) {
+      return cachedData.data;
+    }
+    throw new Error('No cached data available');
+  },
+);
+
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (params: {limit?: number; skip?: number; append?: boolean} = {}) => {
-    const {limit = 10, skip = 0, append = false} = params;
-    const response = await apiClient.get<ProductsResponse>(
-      `https://dummyjson.com/products?limit=${limit}&skip=${skip}`,
-    );
-    return {...response.data, append};
+  async (
+    params: {limit?: number; skip?: number; append?: boolean; useCache?: boolean} = {},
+    {rejectWithValue},
+  ) => {
+    const {limit = 10, skip = 0, append = false, useCache = true} = params;
+    try {
+      const response = await apiClient.get<ProductsResponse>(
+        `https://dummyjson.com/products?limit=${limit}&skip=${skip}`,
+      );
+      const productsData = response.data;
+      
+      // Save to cache on successful fetch (only for initial load, not pagination)
+      if (!append && useCache) {
+        await saveProductsToCache(productsData);
+      }
+      
+      return {...productsData, append};
+    } catch (error: any) {
+      // If fetch fails and we have cache, try to load from cache
+      if (useCache && !append) {
+        const cachedData = await loadProductsFromCache();
+        if (cachedData) {
+          // Return cached data but mark it as an error so we can show offline banner
+          return rejectWithValue({
+            cachedData: cachedData.data,
+            error: error.message || 'Failed to fetch products',
+          });
+        }
+      }
+      return rejectWithValue({
+        error: error.message || 'Failed to fetch products',
+      });
+    }
   },
 );
 
@@ -212,8 +257,9 @@ const productsSlice = createSlice({
         const currentSkip = action.payload.skip;
         const limit = action.payload.limit;
 
-        // Clear any previous errors on successful fetch
+        // Clear any previous errors and offline flag on successful fetch
         state.products.error = null;
+        state.products.isOffline = false;
 
         if (isAppend) {
           // Append new products to existing list
@@ -245,12 +291,55 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         const isAppend = action.meta.arg?.append || false;
-        if (isAppend) {
-          state.products.loadingMore = false;
+        const payload = action.payload as any;
+        
+        // Check if we have cached data to show
+        if (payload?.cachedData && !isAppend) {
+          const cachedData = payload.cachedData as ProductsResponse;
+          state.products.products = cachedData.products || [];
+          state.products.total = cachedData.total || 0;
+          state.products.skip = cachedData.skip || 0;
+          state.products.limit = cachedData.limit || 10;
+          state.products.status = 'success';
+          state.products.isOffline = true;
+          state.products.error = payload.error || 'Failed to fetch products';
+          
+          // Apply filters and sorting to cached products
+          state.products.filteredProducts = applyFiltersAndSort(
+            state.products.products || [],
+            state.products.selectedCategory,
+            state.products.sortOption,
+          );
         } else {
-          state.products.status = 'failed';
+          if (isAppend) {
+            state.products.loadingMore = false;
+          } else {
+            state.products.status = 'failed';
+          }
+          state.products.error = payload?.error || action.error.message || 'Failed to fetch products';
+          state.products.isOffline = false;
         }
-        state.products.error = action.error.message || 'Failed to fetch products';
+      })
+      // Load Cached Products
+      .addCase(loadCachedProducts.fulfilled, (state, action) => {
+        const cachedData = action.payload;
+        state.products.products = cachedData.products || [];
+        state.products.total = cachedData.total || 0;
+        state.products.skip = cachedData.skip || 0;
+        state.products.limit = cachedData.limit || 10;
+        state.products.status = 'success';
+        state.products.isOffline = true; // Mark as offline since we're showing cached data
+        
+        // Apply filters and sorting to cached products
+        state.products.filteredProducts = applyFiltersAndSort(
+          state.products.products || [],
+          state.products.selectedCategory,
+          state.products.sortOption,
+        );
+      })
+      .addCase(loadCachedProducts.rejected, state => {
+        // If no cache available, just keep the current state
+        state.products.isOffline = false;
       })
       // Fetch Product Detail
       .addCase(fetchProductById.pending, state => {

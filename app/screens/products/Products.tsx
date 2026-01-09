@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../../components/Button/Button';
 import Layout from '../../components/Layout';
 import NotFound from '../../components/NotFound';
+import OfflineBanner from '../../components/OfflineBanner';
 import ProductItem from '../../components/ProductItem';
 import Text from '../../components/Text';
 import { useTheme } from '../../theme/useTheme';
@@ -26,6 +27,7 @@ import {
   clearFilters,
   fetchCategories,
   fetchProducts,
+  loadCachedProducts,
   Product,
   searchProducts,
   setSearchQuery,
@@ -67,6 +69,7 @@ export default function Products() {
     sortOption = 'none',
     categories = [],
     categoriesLoading = false,
+    isOffline = false,
   } = productsState || {};
   const status = useSelector(
     (state: RootState) => state.products.products?.status || 'idle',
@@ -78,10 +81,19 @@ export default function Products() {
 
   const debouncedSearchQuery = useDebounce(localSearchQuery, 400);
 
-  // Fetch initial products and categories
+  // Load cached products on mount, then fetch fresh data
   useEffect(() => {
     if (status === 'idle') {
-      dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+      // First, try to load cached data for immediate display
+      dispatch(loadCachedProducts())
+        .then(() => {
+          // Then fetch fresh data in the background
+          dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+        })
+        .catch(() => {
+          // If no cache available, just fetch fresh data
+          dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+        });
     }
     if ((!categories || categories.length === 0) && !categoriesLoading) {
       dispatch(fetchCategories());
@@ -257,6 +269,9 @@ export default function Products() {
 
   return (
     <Layout>
+      {/* Offline Banner */}
+      {isOffline && <OfflineBanner />}
+      
       {/* Search, Filter, and Sort Controls */}
       <View style={[styles.controlsContainer, {backgroundColor: theme.cardBg}]}>
         {/* Search Input */}
