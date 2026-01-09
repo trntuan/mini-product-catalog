@@ -2,12 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-	ActivityIndicator,
-	Dimensions,
-	Image,
-	ScrollView,
-	StyleSheet,
-	View,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -17,6 +18,7 @@ import Layout from '../../components/Layout';
 import Text from '../../components/Text';
 import { useTheme } from '../../theme/useTheme';
 
+import { toggleFavorite } from '../../store/favoritesSlice';
 import { clearProductDetail, fetchProductById } from '../../store/productsSlice';
 import { AppDispatch, RootState } from '../../store/store';
 
@@ -46,6 +48,11 @@ export default function ProductDetail() {
   const error = useSelector(
     (state: RootState) => state.products.productDetail.error,
   );
+  const favoriteIds = useSelector(
+    (state: RootState) => state.favorites.favoriteIds,
+  );
+
+  const isFavorite = product ? favoriteIds.includes(product.id) : false;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -57,11 +64,30 @@ export default function ProductDetail() {
     };
   }, [dispatch, productId]);
 
+  const handleToggleFavorite = useCallback(() => {
+    if (product) {
+      dispatch(toggleFavorite(product.id));
+    }
+  }, [dispatch, product]);
+
   useEffect(() => {
     navigation.setOptions({
       title: product?.title || 'Product Details',
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={handleToggleFavorite}
+          style={styles.favoriteButton}
+          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          accessibilityRole="button">
+          <Ionicons
+            name={isFavorite ? 'heart' : 'heart-outline'}
+            size={24}
+            color={isFavorite ? '#FF6B6B' : theme.color}
+          />
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation, product]);
+  }, [navigation, product, isFavorite, handleToggleFavorite, theme.color]);
 
   const handleRetry = useCallback(() => {
     dispatch(fetchProductById(productId));
@@ -366,5 +392,9 @@ const styles = StyleSheet.create({
   infoValue: {
     flex: 1,
     textAlign: 'right',
+  },
+  favoriteButton: {
+    marginRight: 16,
+    padding: 4,
   },
 });

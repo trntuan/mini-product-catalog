@@ -1,11 +1,14 @@
 import React from 'react';
-import {StyleSheet, Pressable, View, Image} from 'react-native';
+import {StyleSheet, Pressable, TouchableOpacity, View, Image} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
+import {useDispatch, useSelector} from 'react-redux';
 
 import {useTheme} from '../theme/useTheme';
 import Card from './Card';
 import Text from './Text';
 import {Product} from '../store/productsSlice';
+import {toggleFavorite} from '../store/favoritesSlice';
+import {RootState} from '../store/store';
 
 interface ProductItemProps {
   product: Product;
@@ -14,6 +17,14 @@ interface ProductItemProps {
 
 const ProductItem = ({product, onPress}: ProductItemProps) => {
   const {theme} = useTheme();
+  const dispatch = useDispatch();
+  const favoriteIds = useSelector((state: RootState) => state.favorites.favoriteIds);
+  const isFavorite = favoriteIds.includes(product.id);
+
+  const handleToggleFavorite = (e: any) => {
+    e.stopPropagation();
+    dispatch(toggleFavorite(product.id));
+  };
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -69,9 +80,22 @@ const ProductItem = ({product, onPress}: ProductItemProps) => {
           resizeMode="cover"
         />
         <View style={styles.content}>
-          <Text variant="titleSmall" style={styles.title} numberOfLines={2}>
-            {product.title}
-          </Text>
+          <View style={styles.titleRow}>
+            <Text variant="titleSmall" style={styles.title} numberOfLines={2}>
+              {product.title}
+            </Text>
+            <TouchableOpacity
+              onPress={handleToggleFavorite}
+              style={styles.favoriteButton}
+              accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              accessibilityRole="button">
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={20}
+                color={isFavorite ? '#FF6B6B' : theme.color}
+              />
+            </TouchableOpacity>
+          </View>
           <Text variant="bodyMedium" style={[styles.price, {color: theme.primary}]}>
             ${product.price.toFixed(2)}
           </Text>
@@ -107,8 +131,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  title: {
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     marginBottom: 8,
+    gap: 8,
+  },
+  title: {
+    flex: 1,
+  },
+  favoriteButton: {
+    padding: 4,
+    marginTop: -4,
   },
   price: {
     fontWeight: 'bold',

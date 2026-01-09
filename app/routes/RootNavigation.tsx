@@ -28,6 +28,7 @@ import NetworkExample from '@/app/screens/NetworkExample';
 import Settings from '@/app/screens/Settings';
 import Tasks from '@/app/screens/Tasks';
 import Login from '../screens/auth/Login';
+import Favorites from '../screens/products/Favorites';
 import ProductDetail from '../screens/products/ProductDetail';
 import Products from '../screens/products/Products';
 import { RootState } from '../store/store';
@@ -44,6 +45,9 @@ const networkIcon = ({ color }: { color: ColorValue | undefined }) => (
 );
 const settingsIcon = ({ color }: { color: ColorValue | undefined }) => (
   <Ionicons name="settings-sharp" size={24} color={color} />
+);
+const favoritesIcon = ({ color }: { color: ColorValue | undefined }) => (
+  <Ionicons name="heart-sharp" size={24} color={color} />
 );
 
 // Root Navigation
@@ -73,6 +77,42 @@ function ProductsStack() {
         component={Products}
         options={{
           title: 'Products',
+        }}
+      />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
+        options={{
+          title: 'Product Details',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// Favorites Stack Navigator (nested)
+function FavoritesStack() {
+  const { theme } = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.cardBg,
+        },
+        headerTitleAlign: 'center',
+        headerTitleStyle: {
+          fontFamily: typeVariants.titleLarge.fontFamily,
+          fontSize: 18,
+          color: theme.primary,
+          fontWeight: 'bold',
+        },
+        headerTintColor: theme.primary,
+      }}>
+      <Stack.Screen
+        name="FavoritesList"
+        component={Favorites}
+        options={{
+          title: 'Favorites',
         }}
       />
       <Stack.Screen
@@ -134,6 +174,15 @@ export default function RootNavigation() {
               headerShown: false,
               tabBarIcon: productsIcon,
               // tabBarTestID: 'BottomTab.Products',
+            }}
+          />
+          <Tab.Screen
+            name="Favorites"
+            component={FavoritesStack}
+            options={{
+              headerShown: false,
+              tabBarIcon: favoritesIcon,
+              // tabBarTestID: 'BottomTab.Favorites',
             }}
           />
           <Tab.Screen
