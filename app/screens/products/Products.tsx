@@ -2,11 +2,11 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
 import {
-	ActivityIndicator,
-	FlatList,
-	RefreshControl,
-	StyleSheet,
-	View,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -32,24 +32,40 @@ export default function Products() {
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<ProductsNavigationProp>();
 
-  const products = useSelector((state: RootState) => state.products.products);
+  const productsState = useSelector((state: RootState) => state.products.products);
+  const { products, hasMore, loadingMore, error } = productsState;
   const status = useSelector(
     (state: RootState) => state.products.products.status,
   );
-  const error = useSelector((state: RootState) => state.products.products.error);
 
   useEffect(() => {
     if (status === 'idle') {
-      dispatch(fetchProducts({limit: 10, skip: 0}));
+      dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
     }
   }, [dispatch, status]);
 
   const handleRefresh = useCallback(() => {
-    dispatch(fetchProducts({limit: 10, skip: 0}));
+    // Reset pagination and errors, reload products
+    dispatch(fetchProducts({ limit: 10, skip: 0, append: false }));
   }, [dispatch]);
 
+  const handleRetryLoadMore = useCallback(() => {
+    // Retry loading more products after pagination error
+    if (!loadingMore && hasMore) {
+      const nextSkip = products.length;
+      dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
+    }
+  }, [dispatch, loadingMore, hasMore, products.length]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!loadingMore && hasMore && status === 'success' && !error) {
+      const nextSkip = products.length;
+      dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
+    }
+  }, [dispatch, loadingMore, hasMore, status, error, products.length]);
+
   const handleRetry = useCallback(() => {
-    dispatch(fetchProducts({limit: 10, skip: 0}));
+    dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
   }, [dispatch]);
 
   const handleProductPress = useCallback(
@@ -78,10 +94,12 @@ export default function Products() {
   const renderError = () => (
     <View style={styles.centerContainer}>
       <Text variant="titleLarge" style={[styles.errorTitle, {color: theme.error}]}>
-        Error
+        Unable to Load Products
       </Text>
-      <Text style={[styles.errorMessage, {color: theme.color}]}>
-        {error || 'Failed to load products'}
+      <Text
+        variant="bodyMedium"
+        style={[styles.errorMessage, {color: theme.color}]}>
+        {error || 'Failed to load products. Please check your connection and try again.'}
       </Text>
       <Button onPress={handleRetry} text="Retry" style={styles.retryButton} />
     </View>
@@ -94,39 +112,70 @@ export default function Products() {
     />
   );
 
-  if (status === 'loading' && products.products.length === 0) {
+  // Show loading screen only on initial load when no products exist
+  if (status === 'loading' && products.length === 0) {
     return <Layout>{renderLoading()}</Layout>;
   }
 
-  if (status === 'failed' && products.products.length === 0) {
+  // Show error screen only on initial load failure when no products exist
+  if (status === 'failed' && products.length === 0) {
     return <Layout>{renderError()}</Layout>;
   }
 
-  if (status === 'success' && products.products.length === 0) {
+  // Show empty state only when successfully loaded but no products
+  if (status === 'success' && products.length === 0) {
     return <Layout>{renderEmpty()}</Layout>;
   }
 
   return (
     <Layout>
       <FlatList
-        data={products.products}
+        data={products}
         renderItem={renderProduct}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
         style={styles.list}
         refreshControl={
           <RefreshControl
-            refreshing={status === 'loading'}
+            refreshing={status === 'loading' && !loadingMore}
             onRefresh={handleRefresh}
             tintColor={theme.primary}
             colors={[theme.primary]}
           />
         }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={
-          status === 'loading' && products.products.length > 0 ? (
+          loadingMore ? (
             <View style={styles.footerLoader}>
               <ActivityIndicator size="small" color={theme.primary} />
+              <Text
+                variant="bodySmall"
+                style={[styles.loadingMoreText, {color: theme.color}]}>
+                Loading more products...
+              </Text>
+            </View>
+          ) : error && products.length > 0 && !loadingMore ? (
+            <View style={styles.footerLoader}>
+              <Text
+                variant="bodySmall"
+                style={[styles.errorText, {color: theme.error}]}>
+                {error}
+              </Text>
+              <Button
+                onPress={handleRetryLoadMore}
+                text="Retry"
+                style={styles.retryMoreButton}
+              />
+            </View>
+          ) : !hasMore && products.length > 0 ? (
+            <View style={styles.footerLoader}>
+              <Text
+                variant="bodySmall"
+                style={[styles.endOfListText, {color: theme.color}]}>
+                No more products to load
+              </Text>
             </View>
           ) : null
         }
@@ -162,11 +211,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   errorTitle: {
-    marginBottom: 8,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   errorMessage: {
     textAlign: 'center',
     marginBottom: 24,
+    paddingHorizontal: 16,
+    lineHeight: 20,
   },
   retryButton: {
     minWidth: 120,
@@ -174,5 +226,22 @@ const styles = StyleSheet.create({
   footerLoader: {
     paddingVertical: 16,
     alignItems: 'center',
+  },
+  loadingMoreText: {
+    marginTop: 8,
+    opacity: 0.7,
+  },
+  endOfListText: {
+    marginTop: 8,
+    opacity: 0.5,
+    fontStyle: 'italic',
+  },
+  errorText: {
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  retryMoreButton: {
+    minWidth: 100,
+    marginTop: 8,
   },
 });

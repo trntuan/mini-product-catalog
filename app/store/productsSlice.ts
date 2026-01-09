@@ -26,6 +26,8 @@ export interface ProductsResponse {
 
 type ProductsState = {
   status: 'idle' | 'loading' | 'success' | 'failed';
+  loadingMore: boolean;
+  hasMore: boolean;
   products: Product[];
   total: number;
   skip: number;
@@ -48,6 +50,8 @@ type InitialState = {
 const initialState: InitialState = {
   products: {
     status: 'idle',
+    loadingMore: false,
+    hasMore: true,
     products: [],
     total: 0,
     skip: 0,
@@ -64,12 +68,12 @@ const initialState: InitialState = {
 // Async Thunks
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (params: {limit?: number; skip?: number} = {}) => {
-    const {limit = 10, skip = 0} = params;
+  async (params: {limit?: number; skip?: number; append?: boolean} = {}) => {
+    const {limit = 10, skip = 0, append = false} = params;
     const response = await apiClient.get<ProductsResponse>(
       `https://dummyjson.com/products?limit=${limit}&skip=${skip}`,
     );
-    return response.data;
+    return {...response.data, append};
   },
 );
 
@@ -99,19 +103,50 @@ const productsSlice = createSlice({
   extraReducers(builder) {
     builder
       // Fetch Products
-      .addCase(fetchProducts.pending, state => {
-        state.products.status = 'loading';
-        state.products.error = null;
+      .addCase(fetchProducts.pending, (state, action) => {
+        const isAppend = action.meta.arg?.append || false;
+        if (isAppend) {
+          state.products.loadingMore = true;
+        } else {
+          state.products.status = 'loading';
+          state.products.error = null;
+        }
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.products.status = 'success';
-        state.products.products = action.payload.products;
-        state.products.total = action.payload.total;
-        state.products.skip = action.payload.skip;
-        state.products.limit = action.payload.limit;
+        const isAppend = action.payload.append;
+        const newProducts = action.payload.products;
+        const total = action.payload.total;
+        const currentSkip = action.payload.skip;
+        const limit = action.payload.limit;
+
+        // Clear any previous errors on successful fetch
+        state.products.error = null;
+
+        if (isAppend) {
+          // Append new products to existing list
+          state.products.products = [...state.products.products, ...newProducts];
+          state.products.loadingMore = false;
+        } else {
+          // Replace products (initial load or refresh)
+          state.products.products = newProducts;
+          state.products.status = 'success';
+        }
+
+        state.products.total = total;
+        state.products.skip = currentSkip;
+        state.products.limit = limit;
+        // Check if there are more products to load
+        state.products.hasMore =
+          state.products.products.length < total &&
+          currentSkip + newProducts.length < total;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
-        state.products.status = 'failed';
+        const isAppend = action.meta.arg?.append || false;
+        if (isAppend) {
+          state.products.loadingMore = false;
+        } else {
+          state.products.status = 'failed';
+        }
         state.products.error = action.error.message || 'Failed to fetch products';
       })
       // Fetch Product Detail
