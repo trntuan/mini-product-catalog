@@ -1,11 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   RefreshControl,
+  ScrollView,
   StyleSheet,
+  TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,8 +20,18 @@ import NotFound from '../../components/NotFound';
 import ProductItem from '../../components/ProductItem';
 import Text from '../../components/Text';
 import { useTheme } from '../../theme/useTheme';
+import { useDebounce } from '../../utils/useDebounce';
 
-import { fetchProducts, Product } from '../../store/productsSlice';
+import {
+  clearFilters,
+  fetchCategories,
+  fetchProducts,
+  Product,
+  searchProducts,
+  setSearchQuery,
+  setSelectedCategory,
+  setSortOption,
+} from '../../store/productsSlice';
 import { AppDispatch, RootState } from '../../store/store';
 
 type ProductsStackParamList = {
@@ -27,22 +41,68 @@ type ProductsStackParamList = {
 
 type ProductsNavigationProp = NativeStackNavigationProp<ProductsStackParamList>;
 
+// Helper function to format category slug to readable name
+const formatCategoryName = (category: string | null): string => {
+  if (!category) return 'Category';
+  return category
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export default function Products() {
   const {theme} = useTheme();
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<ProductsNavigationProp>();
 
   const productsState = useSelector((state: RootState) => state.products.products);
-  const { products, hasMore, loadingMore, error } = productsState;
+  const {
+    products = [],
+    filteredProducts = [],
+    hasMore = false,
+    loadingMore = false,
+    error = null,
+    searchQuery = '',
+    selectedCategory = null,
+    sortOption = 'none',
+    categories = [],
+    categoriesLoading = false,
+  } = productsState || {};
   const status = useSelector(
-    (state: RootState) => state.products.products.status,
+    (state: RootState) => state.products.products?.status || 'idle',
   );
 
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSortModal, setShowSortModal] = useState(false);
+
+  const debouncedSearchQuery = useDebounce(localSearchQuery, 400);
+
+  // Fetch initial products and categories
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
     }
-  }, [dispatch, status]);
+    if ((!categories || categories.length === 0) && !categoriesLoading) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, status, categories, categoriesLoading]);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const trimmedQuery = debouncedSearchQuery.trim();
+    dispatch(setSearchQuery(trimmedQuery));
+    
+    if (trimmedQuery.length > 0) {
+      dispatch(searchProducts(trimmedQuery));
+    } else {
+      // If search is cleared and we were searching, reload original products
+      if (searchQuery && searchQuery.length > 0) {
+        dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery, dispatch]);
 
   const handleRefresh = useCallback(() => {
     // Reset pagination and errors, reload products
@@ -51,18 +111,26 @@ export default function Products() {
 
   const handleRetryLoadMore = useCallback(() => {
     // Retry loading more products after pagination error
-    if (!loadingMore && hasMore) {
-      const nextSkip = products.length;
+    if (!loadingMore && hasMore && products) {
+      const nextSkip = products.length || 0;
       dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
     }
-  }, [dispatch, loadingMore, hasMore, products.length]);
+  }, [dispatch, loadingMore, hasMore, products]);
 
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore && status === 'success' && !error) {
-      const nextSkip = products.length;
+    // Don't load more if we're searching (search results don't support pagination)
+    if (
+      !loadingMore &&
+      hasMore &&
+      status === 'success' &&
+      !error &&
+      (!searchQuery || searchQuery.length === 0) &&
+      products
+    ) {
+      const nextSkip = products.length || 0;
       dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
     }
-  }, [dispatch, loadingMore, hasMore, status, error, products.length]);
+  }, [dispatch, loadingMore, hasMore, status, error, products, searchQuery]);
 
   const handleRetry = useCallback(() => {
     dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
@@ -74,6 +142,31 @@ export default function Products() {
     },
     [navigation],
   );
+
+  const handleCategorySelect = useCallback(
+    (category: string | null) => {
+      dispatch(setSelectedCategory(category));
+      setShowCategoryModal(false);
+    },
+    [dispatch],
+  );
+
+  const handleSortSelect = useCallback(
+    (sort: 'none' | 'price-asc' | 'price-desc' | 'rating-desc') => {
+      dispatch(setSortOption(sort));
+      setShowSortModal(false);
+    },
+    [dispatch],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    setLocalSearchQuery('');
+    dispatch(clearFilters());
+    // Only reload if we were searching, otherwise filters are already cleared
+    if (searchQuery && searchQuery.length > 0) {
+      dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+    }
+  }, [dispatch, searchQuery]);
 
   const renderProduct = useCallback(
     ({item}: {item: Product}) => (
@@ -113,24 +206,146 @@ export default function Products() {
   );
 
   // Show loading screen only on initial load when no products exist
-  if (status === 'loading' && products.length === 0) {
+  if (status === 'loading' && (!products || products.length === 0)) {
     return <Layout>{renderLoading()}</Layout>;
   }
 
   // Show error screen only on initial load failure when no products exist
-  if (status === 'failed' && products.length === 0) {
+  if (status === 'failed' && (!products || products.length === 0)) {
     return <Layout>{renderError()}</Layout>;
   }
 
-  // Show empty state only when successfully loaded but no products
-  if (status === 'success' && products.length === 0) {
-    return <Layout>{renderEmpty()}</Layout>;
+  const hasActiveFilters =
+    (searchQuery && searchQuery.length > 0) ||
+    selectedCategory !== null ||
+    sortOption !== 'none';
+
+  // Use filteredProducts when available (after filters/sort/search are applied)
+  // Otherwise fall back to products (initial load or when no filters)
+  const displayProducts =
+    (filteredProducts && filteredProducts.length > 0) || hasActiveFilters
+      ? filteredProducts || []
+      : products || [];
+
+  // Show empty state only when successfully loaded but no products to display
+  if (
+    status === 'success' &&
+    displayProducts &&
+    displayProducts.length === 0 &&
+    !loadingMore
+  ) {
+    return (
+      <Layout>
+        {hasActiveFilters ? (
+          <View style={styles.centerContainer}>
+            <Text variant="titleLarge" style={[styles.errorTitle, {color: theme.color}]}>
+              No Results Found
+            </Text>
+            <Text
+              variant="bodyMedium"
+              style={[styles.errorMessage, {color: theme.color}]}>
+              Try adjusting your search, filter, or sort options
+            </Text>
+            <Button onPress={handleClearFilters} text="Clear Filters" style={styles.retryButton} />
+          </View>
+        ) : (
+          renderEmpty()
+        )}
+      </Layout>
+    );
   }
 
   return (
     <Layout>
+      {/* Search, Filter, and Sort Controls */}
+      <View style={[styles.controlsContainer, {backgroundColor: theme.cardBg}]}>
+        {/* Search Input */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[
+              styles.searchInput,
+              {
+                color: theme.color,
+                borderColor: theme.cardBorderColor,
+                backgroundColor: theme.layoutBg,
+              },
+            ]}
+            placeholder="Search products..."
+            placeholderTextColor={theme.color + '80'}
+            value={localSearchQuery}
+            onChangeText={setLocalSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+
+        {/* Filter and Sort Buttons */}
+        <View style={styles.filterRow}>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              {
+                backgroundColor:
+                  selectedCategory !== null ? theme.primary : theme.layoutBg,
+                borderColor: theme.cardBorderColor,
+              },
+            ]}
+            onPress={() => setShowCategoryModal(true)}>
+            <Text
+              style={[
+                styles.filterButtonText,
+                {
+                  color:
+                    selectedCategory !== null
+                      ? '#ffffff'
+                      : theme.color,
+                },
+              ]}>
+              {formatCategoryName(selectedCategory)}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              {
+                backgroundColor:
+                  sortOption !== 'none' ? theme.primary : theme.layoutBg,
+                borderColor: theme.cardBorderColor,
+              },
+            ]}
+            onPress={() => setShowSortModal(true)}>
+            <Text
+              style={[
+                styles.filterButtonText,
+                {
+                  color: sortOption !== 'none' ? '#ffffff' : theme.color,
+                },
+              ]}>
+              {sortOption === 'none'
+                ? 'Sort'
+                : sortOption === 'price-asc'
+                ? 'Price ↑'
+                : sortOption === 'price-desc'
+                ? 'Price ↓'
+                : 'Rating ↓'}
+            </Text>
+          </TouchableOpacity>
+
+          {hasActiveFilters && (
+            <TouchableOpacity
+              style={[styles.clearButton, {borderColor: theme.error}]}
+              onPress={handleClearFilters}>
+              <Text style={[styles.clearButtonText, {color: theme.error}]}>
+                Clear
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       <FlatList
-        data={products}
+        data={displayProducts}
         renderItem={renderProduct}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
@@ -156,7 +371,7 @@ export default function Products() {
                 Loading more products...
               </Text>
             </View>
-          ) : error && products.length > 0 && !loadingMore ? (
+          ) : error && products && products.length > 0 && !loadingMore ? (
             <View style={styles.footerLoader}>
               <Text
                 variant="bodySmall"
@@ -169,7 +384,7 @@ export default function Products() {
                 style={styles.retryMoreButton}
               />
             </View>
-          ) : !hasMore && products.length > 0 ? (
+          ) : !hasMore && products && products.length > 0 ? (
             <View style={styles.footerLoader}>
               <Text
                 variant="bodySmall"
@@ -189,6 +404,154 @@ export default function Products() {
           index,
         })}
       />
+
+      {/* Category Modal */}
+      <Modal
+        visible={showCategoryModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCategoryModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, {backgroundColor: theme.cardBg}]}>
+            <View style={styles.modalHeader}>
+              <Text variant="titleLarge" style={{color: theme.color}}>
+                Select Category
+              </Text>
+              <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
+                <Text style={{color: theme.primary, fontSize: 16}}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScrollView}>
+              <TouchableOpacity
+                style={[
+                  styles.modalItem,
+                  {
+                    backgroundColor:
+                      selectedCategory === null
+                        ? theme.primary + '20'
+                        : 'transparent',
+                  },
+                ]}
+                onPress={() => handleCategorySelect(null)}>
+                <Text
+                  style={[
+                    styles.modalItemText,
+                    {
+                      color:
+                        selectedCategory === null ? theme.primary : theme.color,
+                      fontWeight:
+                        selectedCategory === null ? '600' : '400',
+                    },
+                  ]}>
+                  All Categories
+                </Text>
+              </TouchableOpacity>
+              {categories &&
+                categories.map(category => {
+                  // Safety check - should not happen due to filtering in slice, but extra safety
+                  if (!category || typeof category !== 'string') {
+                    return null;
+                  }
+                  // Format category slug to readable name
+                  const displayName = formatCategoryName(category);
+                  return (
+                    <TouchableOpacity
+                      key={category}
+                      style={[
+                        styles.modalItem,
+                        {
+                          backgroundColor:
+                            selectedCategory === category
+                              ? theme.primary + '20'
+                              : 'transparent',
+                        },
+                      ]}
+                      onPress={() => handleCategorySelect(category)}>
+                      <Text
+                        style={[
+                          styles.modalItemText,
+                          {
+                            color:
+                              selectedCategory === category
+                                ? theme.primary
+                                : theme.color,
+                            fontWeight:
+                              selectedCategory === category ? '600' : '400',
+                          },
+                        ]}>
+                        {displayName}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Sort Modal */}
+      <Modal
+        visible={showSortModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSortModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, {backgroundColor: theme.cardBg}]}>
+            <View style={styles.modalHeader}>
+              <Text variant="titleLarge" style={{color: theme.color}}>
+                Sort By
+              </Text>
+              <TouchableOpacity onPress={() => setShowSortModal(false)}>
+                <Text style={{color: theme.primary, fontSize: 16}}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScrollView}>
+              {[
+                {value: 'none', label: 'None'},
+                {value: 'price-asc', label: 'Price: Low to High'},
+                {value: 'price-desc', label: 'Price: High to Low'},
+                {value: 'rating-desc', label: 'Rating: High to Low'},
+              ].map(option => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.modalItem,
+                    {
+                      backgroundColor:
+                        sortOption === option.value
+                          ? theme.primary + '20'
+                          : 'transparent',
+                    },
+                  ]}
+                  onPress={() =>
+                    handleSortSelect(
+                      option.value as
+                        | 'none'
+                        | 'price-asc'
+                        | 'price-desc'
+                        | 'rating-desc',
+                    )
+                  }>
+                  <Text
+                    style={[
+                      styles.modalItemText,
+                      {
+                        color:
+                          sortOption === option.value
+                            ? theme.primary
+                            : theme.color,
+                        fontWeight:
+                          sortOption === option.value ? '600' : '400',
+                      },
+                    ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </Layout>
   );
 }
@@ -243,5 +606,85 @@ const styles = StyleSheet.create({
   retryMoreButton: {
     minWidth: 100,
     marginTop: 8,
+  },
+  controlsContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E0E0E0',
+  },
+  searchContainer: {
+    marginBottom: 12,
+  },
+  searchInput: {
+    height: 44,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  filterButton: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  clearButton: {
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  clearButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingBottom: 32,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E0E0E0',
+  },
+  modalScrollView: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  modalItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  modalItemText: {
+    fontSize: 16,
   },
 });
