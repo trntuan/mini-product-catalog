@@ -35,31 +35,18 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (values: ValuesType, {setErrors}: any) => {
-    // Log form data before submission
-    console.log('Form values before submit:', values);
-    
     // Create request body object
     // Will be sent as JSON: { "username": "emilys", "password": "emilyspass" }
     const reqObj = {
       username: values.username,
       password: values.password,
     };
-    console.log('Request object:', reqObj);
     
     setIsLoading(true);
     
     try {
       // Use new authService
       const response = await authService.login(reqObj);
-      console.log('Response:', response);
-
-      // API response structure: { accessToken, refreshToken, firstName, lastName, username, ... }
-      console.log('accessToken:', response?.accessToken);
-      console.log('refreshToken:', response?.refreshToken);
-      console.log('firstName:', response?.firstName);
-      console.log('lastName:', response?.lastName);
-      console.log('username:', response?.username);
-      console.log('data:', response);
       
       if (response?.accessToken) {
         const {
@@ -152,16 +139,6 @@ const Login = () => {
                 errors,
                 touched,
               }) => {
-                // Wrapper function to log data before handleSubmit
-                const handleSubmitWithLog = () => {
-                  console.log('=== Before handleSubmit ===');
-                  console.log('Current form values:', values);
-                  console.log('Form errors:', errors);
-                  console.log('Touched fields:', touched);
-                  console.log('========================');
-                  handleSubmit();
-                };
-
                 return (
                   <>
                     <View style={styles.iconWrapper}>
@@ -191,7 +168,7 @@ const Login = () => {
                     />
                     <Button
                       title="Login"
-                      onPress={handleSubmitWithLog}
+                      onPress={() => handleSubmit()}
                       testID="Login.Button"
                     />
                   </>

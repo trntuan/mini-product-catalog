@@ -3,9 +3,9 @@
  * Axios instance with interceptors for request/response handling
  */
 
-import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import API_CONFIG from './config';
-import {handleApiError} from './errors';
+import { handleApiError } from './errors';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -37,9 +37,22 @@ apiClient.interceptors.request.use(
       }
     }
 
+    // Log API request (after auth token is added)
+    const method = config.method?.toUpperCase() || 'UNKNOWN';
+    const url = `${config.baseURL || ''}${config.url || ''}`;
+    const params = config.params ? JSON.stringify(config.params) : '';
+    const hasAuth = !!config.headers.Authorization;
+    
+    console.log(`[API Request] ${method} ${url}`, {
+      params: params || undefined,
+      hasAuth,
+      timestamp: new Date().toISOString(),
+    });
+
     return config;
   },
   (error) => {
+    console.error('[API Request Error]', error);
     return Promise.reject(error);
   },
 );
@@ -47,10 +60,37 @@ apiClient.interceptors.request.use(
 // Response interceptor - Handle responses and errors
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+    // Log API response
+    const method = response.config.method?.toUpperCase() || 'UNKNOWN';
+    const url = `${response.config.baseURL || ''}${response.config.url || ''}`;
+    const status = response.status;
+    const dataSize = JSON.stringify(response.data || {}).length;
+    
+    console.log(`[API Response] ${method} ${url}`, {
+      status,
+      dataSize: `${dataSize} bytes`,
+      timestamp: new Date().toISOString(),
+    });
+
     // Return response data directly for convenience
     return response;
   },
   async (error) => {
+    // Log API error
+    if (error.config) {
+      const method = error.config.method?.toUpperCase() || 'UNKNOWN';
+      const url = `${error.config.baseURL || ''}${error.config.url || ''}`;
+      const status = error.response?.status || 'NO_RESPONSE';
+      
+      console.error(`[API Error] ${method} ${url}`, {
+        status,
+        message: error.message,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      console.error('[API Error]', error);
+    }
+
     // Handle API errors centrally
     return handleApiError(error);
   },

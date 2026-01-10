@@ -41,15 +41,15 @@ const Settings = () => {
             </View>
           </View>
           <>
-            <MenuItem label="Clear Cache" onPress={() => console.log('here')} />
+            <MenuItem label="Clear Cache" onPress={() => {}} />
             <MenuItem
               label="Clear History"
-              onPress={() => console.log('here')}
+              onPress={() => {}}
             />
 
             <MenuItem
               label="Dark Mode"
-              onPress={() => console.log('here')}
+              onPress={() => {}}
               rightItem={
                 <Switch
                   testID="Settings.ThemeSwitch"
@@ -63,9 +63,9 @@ const Settings = () => {
             />
             <MenuItem
               label="Terms & Conditions"
-              onPress={() => console.log('here')}
+              onPress={() => {}}
             />
-            <MenuItem label="About" onPress={() => console.log('here')} />
+            <MenuItem label="About" onPress={() => {}} />
             <MenuItem label="Logout" onPress={handleLogout} />
           </>
         </Card>

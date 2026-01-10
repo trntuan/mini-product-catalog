@@ -39,5 +39,7 @@ export const requestNewToken = async () => {
       const {updateToken} = await import('../store/userSlice');
       store.dispatch(updateToken({token: acToken}));
     })
-    .catch(err => console.log('requestNewToken()', err));
+    .catch(err => {
+      // Error handled silently - token refresh failed
+    });
 };
