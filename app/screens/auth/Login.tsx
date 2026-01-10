@@ -13,6 +13,7 @@ import { ApiException } from '../../api';
 import { updateUser } from '../../store/userSlice';
 import { transformToFormikErrors } from '../../utils/form';
 import { setSecureValue } from '../../utils/keyChain';
+import { KEYCHAIN_KEYS } from '../../types/constants';
 const AppIcon = require('@/assets/images/appicon.png');
 
 interface ValuesType {
@@ -73,8 +74,8 @@ const Login = () => {
         const name = [firstName, lastName].filter(Boolean).join(' ') || '';
         
         dispatch(updateUser({name, username, token: accessToken}));
-        setSecureValue('token', accessToken);
-        setSecureValue('refresh_token', refreshToken || '');
+        setSecureValue(KEYCHAIN_KEYS.TOKEN, accessToken);
+        setSecureValue(KEYCHAIN_KEYS.REFRESH_TOKEN, refreshToken || '');
       }
     } catch (e: any) {
       // Handle ApiException errors

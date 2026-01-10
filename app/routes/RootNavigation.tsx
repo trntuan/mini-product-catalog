@@ -21,6 +21,7 @@ import { useTheme } from '../theme/useTheme';
 import { getSecureValue } from '../utils/keyChain';
 // Redux slice for updating Access Token to store
 import { updateToken } from '@/app/store/userSlice';
+import { KEYCHAIN_KEYS } from '../types/constants';
 
 
 // Screens
@@ -133,7 +134,7 @@ export default function RootNavigation() {
   useEffect(() => {
     async function checkIsLogined() {
       try {
-        let temp = await getSecureValue('token');
+        let temp = await getSecureValue(KEYCHAIN_KEYS.TOKEN);
         dispatch(updateToken({ token: temp }));
       } catch (e) {}
     }

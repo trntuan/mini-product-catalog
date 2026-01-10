@@ -3,6 +3,7 @@ import { Image, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { useDispatch } from 'react-redux';
 import { clearUser } from '../../store/userSlice';
+import { KEYCHAIN_KEYS } from '../../types/constants';
 import { removeSecureValue } from '../../utils/keyChain';
 
 import Card from '../../components/Card';
@@ -19,8 +20,8 @@ const Settings = () => {
 
   const handleLogout = () => {
     // Remove both access token and refresh token from Local
-    removeSecureValue('token');
-    removeSecureValue('refresh_token');
+    removeSecureValue(KEYCHAIN_KEYS.TOKEN);
+    removeSecureValue(KEYCHAIN_KEYS.REFRESH_TOKEN);
     // Remove access token from redux store
     dispatch(clearUser());
   };

@@ -6,6 +6,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import favoritesSlice from './favoritesSlice';
 import productsSlice from './productsSlice';
 import userSlice from './userSlice';
+import { STORAGE_KEYS } from '../types/constants';
 
 const rootReducer = combineReducers({
   user: userSlice,
@@ -14,7 +15,7 @@ const rootReducer = combineReducers({
 });
 
 const persistConfig = {
-  key: 'root',
+  key: STORAGE_KEYS.REDUX_ROOT,
   storage: reduxStorage,
   blacklist: ['user'],
 };

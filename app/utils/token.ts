@@ -1,4 +1,5 @@
 import {getSecureValue, setSecureValue} from './keyChain';
+import { KEYCHAIN_KEYS } from '../types/constants';
 /**
  * Request ACCESS TOKEN using REFRESH TOKEN
  * - ONLY request if there is refresh token present
@@ -6,7 +7,7 @@ import {getSecureValue, setSecureValue} from './keyChain';
  */
 export const requestNewToken = async () => {
   // 1. Get refresh token from keychain
-  getSecureValue('refresh_token')
+  getSecureValue(KEYCHAIN_KEYS.REFRESH_TOKEN)
     // 2. Request a new access token
     .then(async rtoken => {
       if (!rtoken) {
@@ -32,7 +33,7 @@ export const requestNewToken = async () => {
     })
     .then(async acToken => {
       // 4. Save received token to keyring
-      setSecureValue('token', acToken);
+      setSecureValue(KEYCHAIN_KEYS.TOKEN, acToken);
       // 5. Save received token to redux store (lazy import to avoid circular dependency)
       const {store} = await import('../store/store');
       const {updateToken} = await import('../store/userSlice');

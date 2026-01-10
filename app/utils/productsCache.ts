@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProductsResponse } from '../store/productsSlice';
+import { STORAGE_KEYS } from '../types/constants';
 
-const CACHE_KEY = 'products_cache';
-const CACHE_TIMESTAMP_KEY = 'products_cache_timestamp';
+const CACHE_KEY = STORAGE_KEYS.PRODUCTS_CACHE;
+const CACHE_TIMESTAMP_KEY = STORAGE_KEYS.PRODUCTS_CACHE_TIMESTAMP;
 
 export interface CachedProductsData {
   data: ProductsResponse;
