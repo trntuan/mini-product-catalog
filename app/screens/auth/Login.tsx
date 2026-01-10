@@ -8,7 +8,8 @@ import Card from '../../components/Card';
 import CustomLoad from '../../components/CustomLoad';
 import { Input } from '../../components/Form';
 import Layout from '../../components/Layout';
-import { login } from '../../services';
+import { authService } from '../../services';
+import { ApiException } from '../../api';
 import { updateUser } from '../../store/userSlice';
 import { transformToFormikErrors } from '../../utils/form';
 import { setSecureValue } from '../../utils/keyChain';
@@ -47,46 +48,85 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Service request - sends JSON body
-      const res = await login(reqObj);
-      console.log('Response:', res);
+      // Use new authService
+      const response = await authService.login(reqObj);
+      console.log('Response:', response);
 
-      // API response structure: res.data = { accessToken, refreshToken, firstName, lastName, username, ... }
-      console.log('accessToken:', res.data?.accessToken);
-      console.log('refreshToken:', res.data?.refreshToken);
-      console.log('firstName:', res.data?.firstName);
-      console.log('lastName:', res.data?.lastName);
-      console.log('username:', res.data?.username);
-      console.log('data:', res.data);
+      // API response structure: { accessToken, refreshToken, firstName, lastName, username, ... }
+      console.log('accessToken:', response?.accessToken);
+      console.log('refreshToken:', response?.refreshToken);
+      console.log('firstName:', response?.firstName);
+      console.log('lastName:', response?.lastName);
+      console.log('username:', response?.username);
+      console.log('data:', response);
       
-      if (res.data?.accessToken) {
+      if (response?.accessToken) {
         const {
           accessToken,
           refreshToken,
           firstName,
           lastName,
           username,
-        } = res.data;
+        } = response;
         
         // Combine firstName and lastName to create name
         const name = [firstName, lastName].filter(Boolean).join(' ') || '';
         
         dispatch(updateUser({name, username, token: accessToken}));
         setSecureValue('token', accessToken);
-        setSecureValue('refresh_token', refreshToken);
+        setSecureValue('refresh_token', refreshToken || '');
       }
     } catch (e: any) {
-      
-      // Handle field-specific errors (array format)
-      if (e.response?.data?.errors) {
-        let result = transformToFormikErrors(e.response.data.errors);
-        setErrors(result);
+      // Handle ApiException errors
+      if (e instanceof ApiException) {
+        // Handle field-specific errors
+        if (e.errors && typeof e.errors === 'object') {
+          // Convert Record<string, string[]> to array format for transformToFormikErrors
+          const errorsArray = Object.entries(e.errors).flatMap(([param, messages]: [string, string[]]) =>
+            messages.map((msg: string) => ({
+              location: 'body',
+              msg: msg,
+              param: param,
+            }))
+          );
+          let result = transformToFormikErrors(errorsArray);
+          setErrors(result);
+        } 
+        // Handle general error message
+        else {
+          setErrors({
+            password: e.message,
+          });
+        }
+      }
+      // Handle legacy axios error format (for backward compatibility)
+      else if (e.response?.data?.errors) {
+        // Check if it's already an array format
+        if (Array.isArray(e.response.data.errors)) {
+          let result = transformToFormikErrors(e.response.data.errors);
+          setErrors(result);
+        } else {
+          // Convert Record format to array
+          const errorsArray = Object.entries(e.response.data.errors).flatMap(([param, messages]: [string, any]) =>
+            (Array.isArray(messages) ? messages : [messages]).map((msg: string) => ({
+              location: 'body',
+              msg: msg,
+              param: param,
+            }))
+          );
+          let result = transformToFormikErrors(errorsArray);
+          setErrors(result);
+        }
       } 
-      // Handle general error message (string format)
       else if (e.response?.data?.message) {
-        // Display general error on password field since it's a credential error
         setErrors({
           password: e.response.data.message,
+        });
+      }
+      // Handle other errors
+      else {
+        setErrors({
+          password: e.message || 'Login failed. Please try again.',
         });
       }
     } finally {

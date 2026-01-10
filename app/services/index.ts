@@ -1,6 +1,12 @@
-// Re-export HTTP utilities
-export { get, post, routes } from './http';
+/**
+ * Services Module
+ * Business Logic Layer - Services that use the API infrastructure
+ */
 
-// Re-export auth functions
-export { login } from './auth';
+// Business Logic Services
+export {default as authService} from './auth.service';
+export {default as productsService} from './products.service';
 
+// Re-export types from services
+export type {LoginRequest, LoginResponse} from './auth.service';
+export type {Product, ProductsResponse, SearchProductsParams} from './products.service';

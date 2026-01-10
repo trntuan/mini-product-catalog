@@ -1,5 +1,4 @@
 import {getSecureValue, setSecureValue} from './keyChain';
-import {login} from '../services/auth';
 /**
  * Request ACCESS TOKEN using REFRESH TOKEN
  * - ONLY request if there is refresh token present
@@ -9,11 +8,13 @@ export const requestNewToken = async () => {
   // 1. Get refresh token from keychain
   getSecureValue('refresh_token')
     // 2. Request a new access token
-    .then(rtoken => {
+    .then(async rtoken => {
       if (!rtoken) {
         throw new Error('Login Failed');
       }
-      return login(
+      // Use lazy import to avoid circular dependency
+      const {authService} = await import('../services');
+      return authService.login(
         new URLSearchParams({
           grant_type: 'refresh_token',
           refresh_token: rtoken,
@@ -21,7 +22,14 @@ export const requestNewToken = async () => {
       );
     })
     // 3. Parsing new token from response
-    .then(response => response.data.access_token)
+    .then(response => {
+      // Handle both accessToken and token fields
+      const acToken = response.accessToken || response.token;
+      if (!acToken) {
+        throw new Error('No token in response');
+      }
+      return acToken;
+    })
     .then(async acToken => {
       // 4. Save received token to keyring
       setSecureValue('token', acToken);

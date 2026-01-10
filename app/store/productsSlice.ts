@@ -1,10 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import apiClient from '../services/api-client';
+import { productsService } from '../services';
 import {
   loadProductsFromCache,
-  saveProductsToCache,
-  CachedProductsData,
+  saveProductsToCache
 } from '../utils/productsCache';
 
 // Types
@@ -104,10 +103,8 @@ export const fetchProducts = createAsyncThunk(
   ) => {
     const {limit = 10, skip = 0, append = false, useCache = true} = params;
     try {
-      const response = await apiClient.get<ProductsResponse>(
-        `https://dummyjson.com/products?limit=${limit}&skip=${skip}`,
-      );
-      const productsData = response.data;
+      // Use the new productsService
+      const productsData = await productsService.getProducts({ limit, skip });
       
       // Save to cache on successful fetch (only for initial load, not pagination)
       if (!append && useCache) {
@@ -137,31 +134,24 @@ export const fetchProducts = createAsyncThunk(
 export const searchProducts = createAsyncThunk(
   'products/searchProducts',
   async (query: string) => {
-    const response = await apiClient.get<ProductsResponse>(
-      `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}`,
-    );
-    return response.data;
+    // Use the new productsService
+    return await productsService.searchProducts({ q: query });
   },
 );
 
 export const fetchCategories = createAsyncThunk(
   'products/fetchCategories',
   async () => {
-    // Use category-list endpoint which returns array of category slugs (strings)
-    const response = await apiClient.get<string[]>(
-      'https://dummyjson.com/products/category-list',
-    );
-    return response.data;
+    // Use the new productsService
+    return await productsService.getCategories();
   },
 );
 
 export const fetchProductById = createAsyncThunk(
   'products/fetchProductById',
   async (id: number) => {
-    const response = await apiClient.get<Product>(
-      `https://dummyjson.com/products/${id}`,
-    );
-    return response.data;
+    // Use the new productsService
+    return await productsService.getProductById(id);
   },
 );
 
