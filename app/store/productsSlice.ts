@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { productsService } from '../services';
+import { productsService, Category } from '../services';
 import {
   loadProductsFromCache,
   saveProductsToCache
@@ -39,9 +39,10 @@ type ProductsState = {
   limit: number;
   error: string | null;
   searchQuery: string;
-  selectedCategory: string | null;
+  selectedCategory: string | null; // Store category slug
+  selectedCategoryName: string | null; // Store category name for display
   sortOption: 'none' | 'price-asc' | 'price-desc' | 'rating-desc';
-  categories: string[];
+  categories: Category[];
   categoriesLoading: boolean;
   isOffline: boolean; // Flag to indicate if showing cached data
 };
@@ -71,6 +72,7 @@ const initialState: InitialState = {
     error: null,
     searchQuery: '',
     selectedCategory: null,
+    selectedCategoryName: null,
     sortOption: 'none',
     categories: [],
     categoriesLoading: false,
@@ -155,6 +157,29 @@ export const fetchProductById = createAsyncThunk(
   },
 );
 
+export const fetchProductsByCategory = createAsyncThunk(
+  'products/fetchProductsByCategory',
+  async (
+    params: {category: string; limit?: number; skip?: number; append?: boolean} = {} as {category: string},
+    {rejectWithValue},
+  ) => {
+    const {category, limit = 10, skip = 0, append = false} = params;
+    if (!category) {
+      return rejectWithValue({
+        error: 'Category is required',
+      });
+    }
+    try {
+      const productsData = await productsService.getProductsByCategory(category, { limit, skip });
+      return {...productsData, append};
+    } catch (error: any) {
+      return rejectWithValue({
+        error: error.message || 'Failed to fetch products by category',
+      });
+    }
+  },
+);
+
 // Helper function to apply filters and sorting
 const applyFiltersAndSort = (
   products: Product[],
@@ -203,13 +228,15 @@ const productsSlice = createSlice({
       state.products.searchQuery = action.payload;
     },
     setSelectedCategory: (state, action) => {
-      state.products.selectedCategory = action.payload;
-      // Apply filters and sorting when category changes
-      state.products.filteredProducts = applyFiltersAndSort(
-        state.products.products || [],
-        action.payload,
-        state.products.sortOption,
-      );
+      const categoryData = action.payload; // Can be {slug: string, name: string} or null
+      if (categoryData) {
+        state.products.selectedCategory = categoryData.slug || categoryData;
+        state.products.selectedCategoryName = categoryData.name || null;
+      } else {
+        state.products.selectedCategory = null;
+        state.products.selectedCategoryName = null;
+      }
+      // Note: We don't apply filters here anymore - we'll fetch from API instead
     },
     setSortOption: (state, action) => {
       state.products.sortOption = action.payload;
@@ -223,6 +250,7 @@ const productsSlice = createSlice({
     clearFilters: state => {
       state.products.searchQuery = '';
       state.products.selectedCategory = null;
+      state.products.selectedCategoryName = null;
       state.products.sortOption = 'none';
       // Reset filteredProducts to match products (no filters applied)
       state.products.filteredProducts = [...(state.products.products || [])];
@@ -372,11 +400,11 @@ const productsSlice = createSlice({
         state.products.categoriesLoading = true;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        // Filter out any invalid categories (null, undefined, non-strings)
+        // Filter out any invalid categories
         const validCategories =
           Array.isArray(action.payload)
             ? action.payload.filter(
-                cat => cat && typeof cat === 'string' && cat.length > 0,
+                cat => cat && typeof cat === 'object' && cat.slug && cat.name,
               )
             : [];
         state.products.categories = validCategories;
@@ -385,6 +413,63 @@ const productsSlice = createSlice({
       .addCase(fetchCategories.rejected, state => {
         state.products.categoriesLoading = false;
         state.products.categories = state.products.categories || [];
+      })
+      // Fetch Products By Category
+      .addCase(fetchProductsByCategory.pending, (state, action) => {
+        const isAppend = action.meta.arg?.append || false;
+        if (isAppend) {
+          state.products.loadingMore = true;
+        } else {
+          state.products.status = 'loading';
+          state.products.error = null;
+        }
+      })
+      .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
+        const isAppend = action.payload.append;
+        const newProducts = action.payload.products;
+        const total = action.payload.total;
+        const currentSkip = action.payload.skip;
+        const limit = action.payload.limit;
+
+        state.products.error = null;
+        state.products.isOffline = false;
+
+        if (isAppend) {
+          state.products.products = [
+            ...(state.products.products || []),
+            ...(newProducts || []),
+          ];
+          state.products.loadingMore = false;
+        } else {
+          state.products.products = newProducts || [];
+          state.products.status = 'success';
+        }
+
+        state.products.total = total;
+        state.products.skip = currentSkip;
+        state.products.limit = limit;
+        state.products.hasMore =
+          state.products.products.length < total &&
+          currentSkip + newProducts.length < total;
+
+        // Apply sorting to the category products
+        state.products.filteredProducts = applyFiltersAndSort(
+          state.products.products || [],
+          null, // No category filter needed since we already filtered by API
+          state.products.sortOption,
+        );
+      })
+      .addCase(fetchProductsByCategory.rejected, (state, action) => {
+        const isAppend = action.meta.arg?.append || false;
+        const payload = action.payload as any;
+        
+        if (isAppend) {
+          state.products.loadingMore = false;
+        } else {
+          state.products.status = 'failed';
+        }
+        state.products.error = payload?.error || action.error.message || 'Failed to fetch products by category';
+        state.products.isOffline = false;
       });
   },
 });

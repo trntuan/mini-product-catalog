@@ -31,6 +31,12 @@ export interface SearchProductsParams extends PaginationParams {
   q: string;
 }
 
+export interface Category {
+  slug: string;
+  name: string;
+  url: string;
+}
+
 class ProductsService {
   /**
    * Get all products with pagination
@@ -70,8 +76,8 @@ class ProductsService {
   /**
    * Get all categories
    */
-  async getCategories(): Promise<string[]> {
-    const response = await httpService.get<string[]>(ENDPOINTS.PRODUCTS.CATEGORY_LIST);
+  async getCategories(): Promise<Category[]> {
+    const response = await httpService.get<Category[]>(ENDPOINTS.PRODUCTS.CATEGORIES);
     return response.data;
   }
 

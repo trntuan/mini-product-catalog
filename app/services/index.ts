@@ -9,4 +9,4 @@ export {default as productsService} from './products.service';
 
 // Re-export types from services
 export type {LoginRequest, LoginResponse} from './auth.service';
-export type {Product, ProductsResponse, SearchProductsParams} from './products.service';
+export type {Product, ProductsResponse, SearchProductsParams, Category} from './products.service';

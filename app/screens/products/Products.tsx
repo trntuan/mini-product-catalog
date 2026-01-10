@@ -27,6 +27,7 @@ import {
   clearFilters,
   fetchCategories,
   fetchProducts,
+  fetchProductsByCategory,
   loadCachedProducts,
   Product,
   searchProducts,
@@ -43,13 +44,10 @@ type ProductsStackParamList = {
 
 type ProductsNavigationProp = NativeStackNavigationProp<ProductsStackParamList>;
 
-// Helper function to format category slug to readable name
-const formatCategoryName = (category: string | null): string => {
-  if (!category) return 'Category';
-  return category
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+// Helper function to get category display name
+const getCategoryDisplayName = (categoryName: string | null): string => {
+  if (!categoryName) return 'Category';
+  return categoryName;
 };
 
 export default function Products() {
@@ -66,6 +64,7 @@ export default function Products() {
     error = null,
     searchQuery = '',
     selectedCategory = null,
+    selectedCategoryName = null,
     sortOption = 'none',
     categories = [],
     categoriesLoading = false,
@@ -140,9 +139,19 @@ export default function Products() {
       products
     ) {
       const nextSkip = products.length || 0;
-      dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
+      // If a category is selected, load more products from that category
+      if (selectedCategory) {
+        dispatch(fetchProductsByCategory({
+          category: selectedCategory,
+          limit: 10,
+          skip: nextSkip,
+          append: true
+        }));
+      } else {
+        dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
+      }
     }
-  }, [dispatch, loadingMore, hasMore, status, error, products, searchQuery]);
+  }, [dispatch, loadingMore, hasMore, status, error, products, searchQuery, selectedCategory]);
 
   const handleRetry = useCallback(() => {
     dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
@@ -156,9 +165,17 @@ export default function Products() {
   );
 
   const handleCategorySelect = useCallback(
-    (category: string | null) => {
+    (category: {slug: string; name: string} | null) => {
       dispatch(setSelectedCategory(category));
       setShowCategoryModal(false);
+      
+      // Fetch products by category when a category is selected
+      if (category) {
+        dispatch(fetchProductsByCategory({category: category.slug, limit: 10, skip: 0, append: false}));
+      } else {
+        // If "All Categories" is selected, fetch all products
+        dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+      }
     },
     [dispatch],
   );
@@ -174,11 +191,9 @@ export default function Products() {
   const handleClearFilters = useCallback(() => {
     setLocalSearchQuery('');
     dispatch(clearFilters());
-    // Only reload if we were searching, otherwise filters are already cleared
-    if (searchQuery && searchQuery.length > 0) {
-      dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-    }
-  }, [dispatch, searchQuery]);
+    // Reload all products when filters are cleared
+    dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
+  }, [dispatch]);
 
   const renderProduct = useCallback(
     ({item}: {item: Product}) => (
@@ -316,7 +331,7 @@ export default function Products() {
                       : theme.color,
                 },
               ]}>
-              {formatCategoryName(selectedCategory)}
+              {getCategoryDisplayName(selectedCategoryName)}
             </Text>
           </TouchableOpacity>
 
@@ -463,20 +478,18 @@ export default function Products() {
               </TouchableOpacity>
               {categories &&
                 categories.map(category => {
-                  // Safety check - should not happen due to filtering in slice, but extra safety
-                  if (!category || typeof category !== 'string') {
+                  // Safety check - ensure category is a valid object
+                  if (!category || typeof category !== 'object' || !category.slug || !category.name) {
                     return null;
                   }
-                  // Format category slug to readable name
-                  const displayName = formatCategoryName(category);
                   return (
                     <TouchableOpacity
-                      key={category}
+                      key={category.slug}
                       style={[
                         styles.modalItem,
                         {
                           backgroundColor:
-                            selectedCategory === category
+                            selectedCategory === category.slug
                               ? theme.primary + '20'
                               : 'transparent',
                         },
@@ -487,14 +500,14 @@ export default function Products() {
                           styles.modalItemText,
                           {
                             color:
-                              selectedCategory === category
+                              selectedCategory === category.slug
                                 ? theme.primary
                                 : theme.color,
                             fontWeight:
-                              selectedCategory === category ? '600' : '400',
+                              selectedCategory === category.slug ? '600' : '400',
                           },
                         ]}>
-                        {displayName}
+                        {category.name}
                       </Text>
                     </TouchableOpacity>
                   );
