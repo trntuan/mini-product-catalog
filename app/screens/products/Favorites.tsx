@@ -57,10 +57,12 @@ export default function Favorites() {
   );
 
   const renderEmpty = () => (
-    <NotFound 
-      title="No Favorites"
-      message="You haven't favorited any products yet. Start exploring and add some favorites!"
-    />
+    <View style={styles.emptyContainer}>
+      <NotFound 
+        title="No Favorites"
+        message="You haven't favorited any products yet. Start exploring and add some favorites!"
+      />
+    </View>
   );
 
   if (favoriteProducts.length === 0) {
@@ -111,6 +113,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     textAlign: 'center',
     flex: 1,
+    justifyContent: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
   },
   list: {
     flex: 1,

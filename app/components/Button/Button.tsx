@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Pressable, Text, StyleSheet, ViewStyle} from 'react-native';
+import {Pressable, Text, StyleSheet, StyleProp, ViewStyle} from 'react-native';
 
 import {useTheme} from '../../theme/useTheme';
 
@@ -7,7 +7,7 @@ export type ButtonProps = {
   onPress: () => void;
   text?: string;
   children?: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 };
 
 export const Button = ({onPress, text, children, style}: ButtonProps) => {
@@ -28,10 +28,16 @@ export const Button = ({onPress, text, children, style}: ButtonProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: 'purple',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
   },
-  text: {color: 'white'},
+  text: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

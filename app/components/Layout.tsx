@@ -13,7 +13,7 @@ const Layout = ({children, style, ...rest}: LayoutPropsType) => {
       <StatusBar
         animated
         backgroundColor={theme.cardBg}
-        barStyle={theme?.name === 'light' ? 'dark-content' : 'light-content'}
+        barStyle="dark-content"
       />
       <View
         testID="Layout.LayoutContainer"

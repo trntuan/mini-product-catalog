@@ -9,6 +9,8 @@ import Card from '../../components/Card';
 import CustomLoad from '../../components/CustomLoad';
 import { Input } from '../../components/Form';
 import Layout from '../../components/Layout';
+import Text from '../../components/Text';
+import { useTheme } from '../../theme/useTheme';
 import { authService } from '../../services';
 import { updateUser } from '../../store/userSlice';
 import { KEYCHAIN_KEYS } from '../../types/constants';
@@ -32,6 +34,7 @@ const LoginSchema = Yup.object().shape({
 
 const Login = () => {
   const dispatch = useDispatch();
+  const {theme} = useTheme();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (values: ValuesType, {setErrors}: any) => {
@@ -143,32 +146,42 @@ const Login = () => {
                     <View style={styles.iconWrapper}>
                       <Image source={AppIcon} style={styles.appIcon} />
                     </View>
-                    <Input
-                      testID="Login.Username"
-                      placeholder="Username/Email"
-                      onChangeText={handleChange('username')}
-                      onBlur={handleBlur('username')}
-                      value={values.username}
-                      keyboardType="email-address"
-                      error={
-                        errors.username && touched.username ? errors.username : ''
-                      }
-                    />
-                    <Input
-                      testID="Login.Password"
-                      placeholder="Password"
-                      onChangeText={handleChange('password')}
-                      onBlur={handleBlur('password')}
-                      value={values.password}
-                      secureTextEntry
-                      error={
-                        errors.password && touched.password ? errors.password : ''
-                      }
-                    />
+                    <Text variant="titleLarge" style={[styles.welcomeText, {color: theme.color}]}>
+                      Welcome Back
+                    </Text>
+                    <Text variant="bodyMedium" style={[styles.subtitleText, {color: theme.color}]}>
+                      Sign in to continue shopping
+                    </Text>
+                    <View style={styles.inputContainer}>
+                      <Input
+                        testID="Login.Username"
+                        placeholder="Username or Email"
+                        onChangeText={handleChange('username')}
+                        onBlur={handleBlur('username')}
+                        value={values.username}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        error={
+                          errors.username && touched.username ? errors.username : ''
+                        }
+                      />
+                      <Input
+                        testID="Login.Password"
+                        placeholder="Password"
+                        onChangeText={handleChange('password')}
+                        onBlur={handleBlur('password')}
+                        value={values.password}
+                        secureTextEntry
+                        error={
+                          errors.password && touched.password ? errors.password : ''
+                        }
+                      />
+                    </View>
                     <Button
-                      title="Login"
+                      title="Sign In"
                       onPress={() => handleSubmit()}
                       testID="Login.Button"
+                      color="#FF9900"
                     />
                   </>
                 );
@@ -192,16 +205,34 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 24,
   },
   formWrapper: {
-    width: '90%',
+    width: '100%',
+    maxWidth: 400,
   },
   iconWrapper: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   appIcon: {
-    width: 50,
-    height: 50,
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+  },
+  welcomeText: {
+    textAlign: 'center',
+    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  subtitleText: {
+    textAlign: 'center',
+    marginBottom: 32,
+    opacity: 0.7,
+    fontSize: 14,
+  },
+  inputContainer: {
+    marginBottom: 24,
   },
 });

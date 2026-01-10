@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -16,7 +16,7 @@ import { useTheme } from '../../theme/useTheme';
 const avatar = require('@/assets/images/avatar.png');
 
 const Settings = () => {
-  const {theme, toggleTheme} = useTheme();
+  const {theme} = useTheme();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
 
@@ -35,33 +35,22 @@ const Settings = () => {
         <Card style={[styles.card, {backgroundColor: theme.cardBg}]}>
           <View style={styles.avatarRow}>
             <Image source={avatar} style={styles.avatar} />
-            <View>
-              <Text style={{color: theme.color}}>
+            <View style={styles.userInfo}>
+              <Text variant="titleLarge" style={{color: theme.color, marginBottom: 4}}>
                 {user.name || 'User'}
               </Text>
-              <Text variant="titleSmall" style={{color: theme.color}}>
+              <Text variant="bodyMedium" style={{color: theme.color, opacity: 0.7}}>
                 {user.username ? `@${user.username}` : 'No username'}
               </Text>
             </View>
           </View>
-          <>
-  
-            <MenuItem
-              label="Dark Mode"
-              onPress={() => {}}
-              rightItem={
-                <Switch
-                  testID="Settings.ThemeSwitch"
-                  value={theme.name === 'dark'}
-                  onValueChange={value => toggleTheme(value)}
-                  trackColor={{false: '#767577', true: '#81b0ff'}}
-                  thumbColor={theme.name === 'dark' ? '#f5dd4b' : '#f4f3f4'}
-                  ios_backgroundColor="#3e3e3e"
-                />
-              }
+          <View style={styles.divider} />
+          <View style={styles.menuSection}>
+            <MenuItem 
+              label="Logout" 
+              onPress={handleLogout}
             />
-            <MenuItem label="Logout" onPress={handleLogout} />
-          </>
+          </View>
         </Card>
       </ScrollView>
     </Layout>
@@ -73,21 +62,36 @@ export default Settings;
 const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
-    paddingTop: 30,
+    paddingTop: 24,
     paddingBottom: 70,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
   },
   card: {
     marginBottom: 50,
   },
   avatarRow: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 24,
+    alignItems: 'center',
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 40 / 2,
-    marginRight: 10,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginRight: 16,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+  },
+  userInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 12,
+  },
+  menuSection: {
+    paddingTop: 8,
   },
 });

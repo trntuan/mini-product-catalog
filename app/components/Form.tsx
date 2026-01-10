@@ -33,12 +33,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.cardMarginB,
   },
   input: {
-    height: 45,
-    borderColor: '#000000',
-    borderWidth: StyleSheet.hairlineWidth,
+    height: 48,
+    borderColor: '#D5D9D9',
+    borderWidth: 1,
     borderRadius: spacing.borderRadius,
+    paddingHorizontal: 14,
+    fontSize: 16,
+    backgroundColor: '#FFFFFF',
   },
   error: {
     fontSize: typeSizes.FONT_SIZE_SMALL,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });

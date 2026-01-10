@@ -11,12 +11,19 @@ const MenuItem = ({
   rightItem,
 }: MenuItemPropsType) => {
   const {theme} = useTheme();
+  const isLogout = label === 'Logout';
   return (
     <Pressable
-      style={[styles.menuItem, {borderTopColor: theme.layoutBg}]}
+      style={({pressed}) => [
+        styles.menuItem,
+        {borderTopColor: theme.cardBorderColor},
+        pressed && styles.pressedItem,
+      ]}
       onPress={onPress}>
       <View>
-        <Text>{label}</Text>
+        <Text style={isLogout ? {color: theme.error} : {color: theme.color}}>
+          {label}
+        </Text>
       </View>
       <View>{rightItem}</View>
     </Pressable>
@@ -29,9 +36,13 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 40,
+    minHeight: 48,
     alignItems: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#ccc',
+    paddingVertical: 8,
+  },
+  pressedItem: {
+    opacity: 0.6,
   },
 });

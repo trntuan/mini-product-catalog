@@ -1,16 +1,15 @@
 /**
- * Dark/Light Mode
+ * Theme
  */
 
 import React from 'react';
 
-// Import preconfigured themes from theme file
-import { themes, themeType } from './theme';
+// Import theme from theme file
+import { theme, themeType } from './theme';
 
 // Types
 export interface ThemeContextInterface {
   theme: themeType;
-  setTheme: (value: themeType) => void;
 }
 
 interface ThemeProviderInterface {
@@ -24,23 +23,15 @@ const ThemeContext = React.createContext({} as ThemeContextInterface);
 export const ThemeProvider = ({
   children,
 }: ThemeProviderInterface): React.JSX.Element => {
-  const [theme, setTheme] = React.useState(themes.light);
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-// useTheme hook for easy access to theme and setTheme
+// useTheme hook for easy access to theme
 export const useTheme = () => {
   const state = React.useContext(ThemeContext);
-
-  const { theme, setTheme } = state;
-
-  const toggleTheme = (v: boolean) => {
-    setTheme(v ? themes.dark : themes.light);
-  };
-
-  return { theme, toggleTheme };
+  return { theme: state.theme };
 };

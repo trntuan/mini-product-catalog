@@ -1,14 +1,11 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import {StyleSheet, Pressable, TouchableOpacity, View, Image} from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
-import {useDispatch, useSelector} from 'react-redux';
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 
-import {useTheme} from '../theme/useTheme';
+import { Product } from '../store/productsSlice';
+import { useTheme } from '../theme/useTheme';
 import Card from './Card';
 import Text from './Text';
-import {Product} from '../store/productsSlice';
-import {toggleFavorite} from '../store/favoritesSlice';
-import {RootState} from '../store/store';
 
 interface ProductItemProps {
   product: Product;
@@ -17,14 +14,6 @@ interface ProductItemProps {
 
 const ProductItem = ({product, onPress}: ProductItemProps) => {
   const {theme} = useTheme();
-  const dispatch = useDispatch();
-  const favoriteIds = useSelector((state: RootState) => state.favorites.favoriteIds);
-  const isFavorite = favoriteIds.includes(product.id);
-
-  const handleToggleFavorite = (e: any) => {
-    e.stopPropagation();
-    dispatch(toggleFavorite(product.id));
-  };
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -68,35 +57,25 @@ const ProductItem = ({product, onPress}: ProductItemProps) => {
   };
 
   return (
-    <Card style={styles.card}>
+    <Card style={[styles.card, {shadowColor: '#000'}]}>
       <Pressable
         onPress={() => onPress(product.id)}
-        style={styles.container}
+        style={({pressed}) => [
+          styles.container,
+          pressed && styles.pressedContainer,
+        ]}
         accessibilityLabel={`Product: ${product.title}`}
         accessibilityRole="button">
         <Image
           source={{uri: product.thumbnail}}
           style={styles.thumbnail}
-          resizeMode="cover"
+          resizeMode="contain"
         />
         <View style={styles.content}>
-          <View style={styles.titleRow}>
-            <Text variant="titleSmall" style={styles.title} numberOfLines={2}>
-              {product.title}
-            </Text>
-            <TouchableOpacity
-              onPress={handleToggleFavorite}
-              style={styles.favoriteButton}
-              accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              accessibilityRole="button">
-              <Ionicons
-                name={isFavorite ? 'heart' : 'heart-outline'}
-                size={20}
-                color={isFavorite ? '#FF6B6B' : theme.color}
-              />
-            </TouchableOpacity>
-          </View>
-          <Text variant="bodyMedium" style={[styles.price, {color: theme.primary}]}>
+          <Text variant="titleSmall" style={[styles.title, {color: theme.color}]} >
+            {product.title}
+          </Text>
+          <Text variant="titleLarge" style={[styles.price, {color: theme.primary}]}>
             ${product.price.toFixed(2)}
           </Text>
           <View style={styles.ratingContainer}>
@@ -116,43 +95,49 @@ export default ProductItem;
 const styles = StyleSheet.create({
   card: {
     marginBottom: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   container: {
     flexDirection: 'row',
     gap: 12,
+    padding: 4,
+  },
+  pressedContainer: {
+    opacity: 0.7,
   },
   thumbnail: {
     width: 100,
     height: 100,
     borderRadius: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#F8F8F8',
   },
   content: {
     flex: 1,
     justifyContent: 'space-between',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    gap: 8,
+    paddingVertical: 4,
   },
   title: {
-    flex: 1,
-  },
-  favoriteButton: {
-    padding: 4,
-    marginTop: -4,
+    marginBottom: 8,
+    lineHeight: 20,
   },
   price: {
-    fontWeight: 'bold',
+    fontWeight: '700',
+    fontSize: 18,
     marginBottom: 8,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
   },
   stars: {
     flexDirection: 'row',

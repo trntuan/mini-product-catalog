@@ -1,8 +1,9 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
 
 import {useTheme} from '../theme/useTheme';
-import Layout from './Layout';
+import Text from './Text';
 
 const NotFound = ({
   title = 'Not Found',
@@ -10,26 +11,40 @@ const NotFound = ({
 }) => {
   const {theme} = useTheme();
   return (
-    <Layout style={styles.layout}>
-      <View style={styles.content}>
-        <Text style={[styles.title, {color: theme.color}]}>{title}</Text>
-        <Text style={{color: theme.color}}>{message}</Text>
-      </View>
-    </Layout>
+    <View style={styles.container}>
+      <Ionicons name="search-outline" size={64} color={theme.color} style={styles.icon} />
+      <Text variant="titleLarge" style={[styles.title, {color: theme.color}]}>
+        {title}
+      </Text>
+      <Text variant="bodyMedium" style={[styles.message, {color: theme.color}]}>
+        {message}
+      </Text>
+    </View>
   );
 };
 
 export default NotFound;
 
 const styles = StyleSheet.create({
-  layout: {
+  container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 32,
   },
-  content: {
-    alignItems: 'center',
+  icon: {
+    opacity: 0.3,
+    marginBottom: 16,
   },
   title: {
-    marginBottom: 10,
+    marginBottom: 12,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  message: {
+    textAlign: 'center',
+    opacity: 0.7,
+    lineHeight: 20,
   },
 });

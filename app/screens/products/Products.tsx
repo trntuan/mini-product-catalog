@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -291,22 +292,30 @@ export default function Products() {
       <View style={[styles.controlsContainer, {backgroundColor: theme.cardBg}]}>
         {/* Search Input */}
         <View style={styles.searchContainer}>
-          <TextInput
-            style={[
-              styles.searchInput,
-              {
-                color: theme.color,
-                borderColor: theme.cardBorderColor,
-                backgroundColor: theme.layoutBg,
-              },
-            ]}
-            placeholder="Search products..."
-            placeholderTextColor={theme.color + '80'}
-            value={localSearchQuery}
-            onChangeText={setLocalSearchQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View style={[styles.searchInputWrapper, {backgroundColor: theme.layoutBg, borderColor: theme.cardBorderColor}]}>
+            <Ionicons name="search" size={20} color={theme.color} style={styles.searchIcon} />
+            <TextInput
+              style={[
+                styles.searchInput,
+                {
+                  color: theme.color,
+                },
+              ]}
+              placeholder="Search products..."
+              placeholderTextColor={theme.color + '80'}
+              value={localSearchQuery}
+              onChangeText={setLocalSearchQuery}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {localSearchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setLocalSearchQuery('')}
+                style={styles.clearSearchButton}>
+                <Ionicons name="close-circle" size={20} color={theme.color} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         {/* Filter and Sort Buttons */}
@@ -637,20 +646,33 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 16,
+    paddingBottom: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#E0E0E0',
   },
   searchContainer: {
     marginBottom: 12,
   },
-  searchInput: {
-    height: 44,
+  searchInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 48,
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  searchIcon: {
+    opacity: 0.6,
+  },
+  searchInput: {
+    flex: 1,
     fontSize: 16,
+    padding: 0,
+  },
+  clearSearchButton: {
+    padding: 4,
   },
   filterRow: {
     flexDirection: 'row',
@@ -665,10 +687,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 12,
+    flexDirection: 'row',
+    gap: 6,
   },
   filterButtonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   clearButton: {
     height: 40,

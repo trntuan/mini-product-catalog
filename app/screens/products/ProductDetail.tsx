@@ -215,13 +215,7 @@ export default function ProductDetail() {
               <Text variant="titleLarge" style={[styles.price, {color: theme.primary}]}>
                 ${product.price.toFixed(2)}
               </Text>
-              {product.discountPercentage > 0 && (
-                <View style={styles.discountBadge}>
-                  <Text variant="bodySmall" style={styles.discountText}>
-                    {product.discountPercentage.toFixed(0)}% OFF
-                  </Text>
-                </View>
-              )}
+          
             </View>
             <View style={styles.ratingContainer}>
               <View style={styles.stars}>{renderStars(product.rating)}</View>
@@ -347,16 +341,7 @@ const styles = StyleSheet.create({
   price: {
     fontWeight: 'bold',
   },
-  discountBadge: {
-    backgroundColor: '#FF6B6B',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  discountText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-  },
+
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',

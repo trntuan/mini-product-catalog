@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, Platform} from 'react-native';
 import {useTheme} from '../theme/useTheme';
 import {spacing} from '../theme/theme';
 import {CardPropsType} from '../types/components';
@@ -29,6 +29,17 @@ const styles = StyleSheet.create({
     borderRadius: spacing.borderRadius,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: '#fff',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
 });
 

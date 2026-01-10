@@ -4,7 +4,8 @@
  * Uncomment commented lines from return() of RootNavigation to wire Login flow
  */
 import React, { useEffect } from 'react';
-import { ColorValue, Platform } from 'react-native';
+import { ColorValue, Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -15,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // import {useSelector, useDispatch} from 'react-redux';
 
 // Hook for theme change (Light/Dark Mode)
-import { typeVariants, themeType } from '../theme/theme';
+import { themeType, typeVariants } from '../theme/theme';
 import { useTheme } from '../theme/useTheme';
 // Get Value from Keyring (Encrypted token)
 import { getSecureValue } from '../utils/keyChain';
@@ -34,15 +35,16 @@ import { RootState } from '../store/store';
 
 // Icons for Bottom Tab Navigation
 
-const productsIcon = ({ color }: { color: ColorValue | undefined }) => (
-  <Ionicons name="grid-sharp" size={24} color={color} />
+const productsIcon = ({ color, focused }: { color: ColorValue | undefined; focused: boolean }) => (
+  <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
 );
 
-const settingsIcon = ({ color }: { color: ColorValue | undefined }) => (
-  <Ionicons name="settings-sharp" size={24} color={color} />
+const favoritesIcon = ({ color, focused }: { color: ColorValue | undefined; focused: boolean }) => (
+  <Ionicons name={focused ? "heart" : "heart-outline"} size={24} color={color} />
 );
-const favoritesIcon = ({ color }: { color: ColorValue | undefined }) => (
-  <Ionicons name="heart-sharp" size={24} color={color} />
+
+const settingsIcon = ({ color, focused }: { color: ColorValue | undefined; focused: boolean }) => (
+  <Ionicons name={focused ? "settings" : "settings-outline"} size={24} color={color} />
 );
 
 // Root Navigation
@@ -58,15 +60,19 @@ const ROUTE_NAMES = {
 const getStackScreenOptions = (theme: themeType) => ({
   headerStyle: {
     backgroundColor: theme.cardBg,
+    elevation: 0,
+    shadowOpacity: 0,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.cardBorderColor,
   },
-  headerTitleAlign: 'center' as const,
+  headerTitleAlign: 'left' as const,
   headerTitleStyle: {
     fontFamily: typeVariants.titleLarge.fontFamily,
-    fontSize: 18,
-    color: theme.primary,
-    fontWeight: 'bold' as const,
+    fontSize: 20,
+    color: theme.color,
+    fontWeight: '600' as const,
   },
-  headerTintColor: theme.primary,
+  headerTintColor: theme.color,
 });
 
 // Helper function to check if tab bar should be hidden
@@ -124,6 +130,7 @@ export default function RootNavigation() {
   const { theme } = useTheme();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
+  const insets = useSafeAreaInsets();
 
   // Copy existing token from local storage to redux store
   useEffect(() => {
@@ -150,17 +157,21 @@ export default function RootNavigation() {
                 borderTopColor: theme?.layoutBg,
                 display: hideTabBar ? 'none' : 'flex',
               },
-              tabBarInactiveTintColor: theme.color,
+              tabBarInactiveTintColor: theme.color + '80',
               tabBarActiveTintColor: theme.primary,
               headerStyle: {
                 backgroundColor: theme.cardBg,
-                height: Platform.OS == 'ios' ? 120 : 50,
+                height: Platform.OS === 'ios' ? 120 : 50,
+                elevation: 0,
+                shadowOpacity: 0,
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: theme.cardBorderColor,
               },
-              headerTitleAlign: 'center',
+              headerTitleAlign: 'left',
               headerTitleStyle: {
                 fontFamily: typeVariants.titleLarge.fontFamily,
                 fontSize: 18,
-                color: theme.primary,
+                color: theme.color,
                 fontWeight: 'bold',
               },
               tabBarShowLabel: true,
