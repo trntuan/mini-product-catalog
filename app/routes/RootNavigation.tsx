@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { ColorValue, Platform } from 'react-native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // import Icon from 'react-native-vector-icons/Ionicons';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // import {useSelector, useDispatch} from 'react-redux';
 
 // Hook for theme change (Light/Dark Mode)
-import { typeVariants } from '../theme/theme';
+import { typeVariants, themeType } from '../theme/theme';
 import { useTheme } from '../theme/useTheme';
 // Get Value from Keyring (Encrypted token)
 import { getSecureValue } from '../utils/keyChain';
@@ -33,15 +33,11 @@ import Products from '../screens/products/Products';
 import { RootState } from '../store/store';
 
 // Icons for Bottom Tab Navigation
-const homeIcon = ({ color }: { color: ColorValue | undefined }) => (
-  <Ionicons name="home-sharp" size={24} color={color} />
-);
+
 const productsIcon = ({ color }: { color: ColorValue | undefined }) => (
   <Ionicons name="grid-sharp" size={24} color={color} />
 );
-const networkIcon = ({ color }: { color: ColorValue | undefined }) => (
-  <Ionicons name="wifi-sharp" size={24} color={color} />
-);
+
 const settingsIcon = ({ color }: { color: ColorValue | undefined }) => (
   <Ionicons name="settings-sharp" size={24} color={color} />
 );
@@ -53,24 +49,36 @@ const favoritesIcon = ({ color }: { color: ColorValue | undefined }) => (
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+// Route names constants
+const ROUTE_NAMES = {
+  PRODUCT_DETAIL: 'ProductDetail',
+} as const;
+
+// Helper function to get common stack navigator screen options
+const getStackScreenOptions = (theme: themeType) => ({
+  headerStyle: {
+    backgroundColor: theme.cardBg,
+  },
+  headerTitleAlign: 'center' as const,
+  headerTitleStyle: {
+    fontFamily: typeVariants.titleLarge.fontFamily,
+    fontSize: 18,
+    color: theme.primary,
+    fontWeight: 'bold' as const,
+  },
+  headerTintColor: theme.primary,
+});
+
+// Helper function to check if tab bar should be hidden
+const shouldHideTabBar = (routeName: string | undefined): boolean => {
+  return routeName === ROUTE_NAMES.PRODUCT_DETAIL;
+};
+
 // Products Stack Navigator (nested)
 function ProductsStack() {
   const { theme } = useTheme();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.cardBg,
-        },
-        headerTitleAlign: 'center',
-        headerTitleStyle: {
-          fontFamily: typeVariants.titleLarge.fontFamily,
-          fontSize: 18,
-          color: theme.primary,
-          fontWeight: 'bold',
-        },
-        headerTintColor: theme.primary,
-      }}>
+    <Stack.Navigator screenOptions={getStackScreenOptions(theme)}>
       <Stack.Screen
         name="ProductsList"
         component={Products}
@@ -93,20 +101,7 @@ function ProductsStack() {
 function FavoritesStack() {
   const { theme } = useTheme();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.cardBg,
-        },
-        headerTitleAlign: 'center',
-        headerTitleStyle: {
-          fontFamily: typeVariants.titleLarge.fontFamily,
-          fontSize: 18,
-          color: theme.primary,
-          fontWeight: 'bold',
-        },
-        headerTintColor: theme.primary,
-      }}>
+    <Stack.Navigator screenOptions={getStackScreenOptions(theme)}>
       <Stack.Screen
         name="FavoritesList"
         component={Favorites}
@@ -145,25 +140,31 @@ export default function RootNavigation() {
     <NavigationContainer>
       {user.token ? (
         <Tab.Navigator
-          screenOptions={{
-            tabBarStyle: {
-              backgroundColor: theme.cardBg,
-              borderTopColor: theme?.layoutBg,
-            },
-            tabBarInactiveTintColor: theme.color,
-            tabBarActiveTintColor: theme.primary,
-            headerStyle: {
-              backgroundColor: theme.cardBg,
-              height: Platform.OS == 'ios' ? 120 : 50,
-            },
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-              fontFamily: typeVariants.titleLarge.fontFamily,
-              fontSize: 18,
-              color: theme.primary,
-              fontWeight: 'bold',
-            },
-            tabBarShowLabel: true,
+          screenOptions={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route);
+            const hideTabBar = shouldHideTabBar(routeName);
+            
+            return {
+              tabBarStyle: {
+                backgroundColor: theme.cardBg,
+                borderTopColor: theme?.layoutBg,
+                display: hideTabBar ? 'none' : 'flex',
+              },
+              tabBarInactiveTintColor: theme.color,
+              tabBarActiveTintColor: theme.primary,
+              headerStyle: {
+                backgroundColor: theme.cardBg,
+                height: Platform.OS == 'ios' ? 120 : 50,
+              },
+              headerTitleAlign: 'center',
+              headerTitleStyle: {
+                fontFamily: typeVariants.titleLarge.fontFamily,
+                fontSize: 18,
+                color: theme.primary,
+                fontWeight: 'bold',
+              },
+              tabBarShowLabel: true,
+            };
           }}
         >
           <Tab.Screen

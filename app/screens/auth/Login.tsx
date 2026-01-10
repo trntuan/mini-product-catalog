@@ -4,16 +4,16 @@ import { Button, Image, ScrollView, StyleSheet, View } from 'react-native';
 import * as Yup from 'yup';
 
 import { useDispatch } from 'react-redux';
+import { ApiException } from '../../api';
 import Card from '../../components/Card';
 import CustomLoad from '../../components/CustomLoad';
 import { Input } from '../../components/Form';
 import Layout from '../../components/Layout';
 import { authService } from '../../services';
-import { ApiException } from '../../api';
 import { updateUser } from '../../store/userSlice';
+import { KEYCHAIN_KEYS } from '../../types/constants';
 import { transformToFormikErrors } from '../../utils/form';
 import { setSecureValue } from '../../utils/keyChain';
-import { KEYCHAIN_KEYS } from '../../types/constants';
 const AppIcon = require('@/assets/images/appicon.png');
 
 interface ValuesType {
@@ -36,7 +36,6 @@ const Login = () => {
 
   const handleLogin = async (values: ValuesType, {setErrors}: any) => {
     // Create request body object
-    // Will be sent as JSON: { "username": "emilys", "password": "emilyspass" }
     const reqObj = {
       username: values.username,
       password: values.password,

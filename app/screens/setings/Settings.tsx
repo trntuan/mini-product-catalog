@@ -1,7 +1,8 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 import { clearUser } from '../../store/userSlice';
 import { KEYCHAIN_KEYS } from '../../types/constants';
 import { removeSecureValue } from '../../utils/keyChain';
@@ -17,6 +18,7 @@ const avatar = require('@/assets/images/avatar.png');
 const Settings = () => {
   const {theme, toggleTheme} = useTheme();
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
 
   const handleLogout = () => {
     // Remove both access token and refresh token from Local
@@ -34,19 +36,16 @@ const Settings = () => {
           <View style={styles.avatarRow}>
             <Image source={avatar} style={styles.avatar} />
             <View>
-              <Text style={{color: theme.color}}>Hermione Granger</Text>
+              <Text style={{color: theme.color}}>
+                {user.name || 'User'}
+              </Text>
               <Text variant="titleSmall" style={{color: theme.color}}>
-                u/hermione
+                {user.username ? `@${user.username}` : 'No username'}
               </Text>
             </View>
           </View>
           <>
-            <MenuItem label="Clear Cache" onPress={() => {}} />
-            <MenuItem
-              label="Clear History"
-              onPress={() => {}}
-            />
-
+  
             <MenuItem
               label="Dark Mode"
               onPress={() => {}}
@@ -61,11 +60,6 @@ const Settings = () => {
                 />
               }
             />
-            <MenuItem
-              label="Terms & Conditions"
-              onPress={() => {}}
-            />
-            <MenuItem label="About" onPress={() => {}} />
             <MenuItem label="Logout" onPress={handleLogout} />
           </>
         </Card>
@@ -85,17 +79,6 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 50,
-  },
-  header: {
-    paddingLeft: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 40,
-  },
-  btnHamburger: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
   },
   avatarRow: {
     flexDirection: 'row',
