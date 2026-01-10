@@ -24,9 +24,7 @@ import { updateToken } from '@/app/store/userSlice';
 
 
 // Screens
-import NetworkExample from '@/app/screens/NetworkExample';
-import Settings from '@/app/screens/Settings';
-import Tasks from '@/app/screens/Tasks';
+import Settings from '@/app/screens/setings/Settings';
 import Login from '../screens/auth/Login';
 import Favorites from '../screens/products/Favorites';
 import ProductDetail from '../screens/products/ProductDetail';
@@ -183,22 +181,6 @@ export default function RootNavigation() {
               headerShown: false,
               tabBarIcon: favoritesIcon,
               // tabBarTestID: 'BottomTab.Favorites',
-            }}
-          />
-          <Tab.Screen
-            name="To Do"
-            component={Tasks}
-            options={{
-              tabBarIcon: homeIcon,
-              // tabBarTestID: 'BottomTab.ToDo',
-            }}
-          />
-          <Tab.Screen
-            name="NetworkExample"
-            component={NetworkExample}
-            options={{
-              tabBarIcon: networkIcon,
-              // tabBarTestID: 'BottomTab.Network',
             }}
           />
           <Tab.Screen

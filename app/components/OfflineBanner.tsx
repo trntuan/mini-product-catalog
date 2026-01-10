@@ -1,7 +1,7 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useTheme } from '../theme/useTheme';
 import Text from './Text';
-import {useTheme} from '../theme/useTheme';
 
 interface OfflineBannerProps {
   message?: string;
@@ -17,7 +17,7 @@ export default function OfflineBanner({
       style={[
         styles.banner,
         {
-          backgroundColor: theme.warning || '#FFA500',
+          backgroundColor: theme.error || '#FFA500',
         },
       ]}>
       <Text style={styles.bannerText}>{message}</Text>

@@ -1,10 +1,9 @@
 import React from 'react';
-import {StyleSheet, View, Text, TextInput} from 'react-native';
-import {useTheme} from '../theme/useTheme';
-import {spacing, typeSizes} from '../theme/theme';
-import {InputPropsType} from '../types/components';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { spacing, typeSizes } from '../theme/theme';
+import { useTheme } from '../theme/useTheme';
 
-const Input = ({style, error, ...rest}: InputPropsType) => {
+const Input = ({style, error, ...rest}: any) => {
   const {theme} = useTheme();
   return (
     <View style={styles.inputWrp}>
@@ -27,7 +26,7 @@ const Input = ({style, error, ...rest}: InputPropsType) => {
   );
 };
 
-export {Input};
+export { Input };
 
 const styles = StyleSheet.create({
   inputWrp: {

@@ -1,44 +1,6 @@
-import apiClient from './api-client';
-const BASE_URL = 'https://dummyjson.com';
+// Re-export HTTP utilities
+export { get, post, routes } from './http';
 
-const contentTypes: any = {
-  json: 'application/json',
-  mfd: 'multipart/form-data',
-};
-
-// Base function for GET requests
-const get = (route: string) => {
-  return apiClient(`${BASE_URL}/${route}`);
-};
-
-// Base function for POST requests
-const post = async (
-  route: string,
-  {body, type = '', user = {}}: {body: any; type?: string; user?: any},
-) => {
-  let headers: any = {Accept: 'application/json'};
-  if (user.token) {
-    headers.Authorization = `Bearer ${user.token}`;
-  }
-  if (type !== '') {
-    headers['Content-Type'] = contentTypes[type];
-  }
-  return apiClient({
-    method: 'post',
-    url: `${BASE_URL}/${route}`,
-    headers,
-    data: body,
-  });
-};
-
-// Routes
-const routes = {
-  login: 'user/login',
-  getNews: 'news',
-};
-
-export { get, post, routes };
-
-  export { login } from './auth';
-  export { getNews } from './news';
+// Re-export auth functions
+export { login } from './auth';
 

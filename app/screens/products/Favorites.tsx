@@ -2,18 +2,16 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useMemo } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
-  View,
+  View
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import Layout from '../../components/Layout';
 import NotFound from '../../components/NotFound';
 import ProductItem from '../../components/ProductItem';
-import Text from '../../components/Text';
 import { useTheme } from '../../theme/useTheme';
 
 import { Product } from '../../store/productsSlice';
@@ -59,7 +57,7 @@ export default function Favorites() {
   );
 
   const renderEmpty = () => (
-    <NotFound
+    <NotFound 
       title="No Favorites"
       message="You haven't favorited any products yet. Start exploring and add some favorites!"
     />
@@ -106,7 +104,12 @@ export default function Favorites() {
 }
 
 const styles = StyleSheet.create({
+  layout: {
+    flex: 1,
+  },
   container: {
+    paddingHorizontal: 16,
+    textAlign: 'center',
     flex: 1,
   },
   list: {

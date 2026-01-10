@@ -1,11 +1,9 @@
 import {getSecureValue, setSecureValue} from './keyChain';
-import {login} from '../services/index';
-import {updateToken} from '../store/userSlice';
-import {store} from '../store/store';
+import {login} from '../services/auth';
 /**
  * Request ACCESS TOKEN using REFRESH TOKEN
  * - ONLY request if there is refresh token present
- * - Accessing store directly since useDispatch doesn't work outside react component
+ * - Uses lazy import to avoid circular dependency with store
  */
 export const requestNewToken = async () => {
   // 1. Get refresh token from keychain
@@ -24,10 +22,12 @@ export const requestNewToken = async () => {
     })
     // 3. Parsing new token from response
     .then(response => response.data.access_token)
-    .then(acToken => {
+    .then(async acToken => {
       // 4. Save received token to keyring
       setSecureValue('token', acToken);
-      // 5. Save received token to redux store
+      // 5. Save received token to redux store (lazy import to avoid circular dependency)
+      const {store} = await import('../store/store');
+      const {updateToken} = await import('../store/userSlice');
       store.dispatch(updateToken({token: acToken}));
     })
     .catch(err => console.log('requestNewToken()', err));

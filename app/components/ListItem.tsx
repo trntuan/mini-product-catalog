@@ -1,7 +1,7 @@
-import * as React from 'react';
-import {StyleSheet, Pressable} from 'react-native';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
-import {useTheme, ThemeContextInterface} from '../theme/useTheme';
+import * as React from 'react';
+import { Pressable, StyleSheet } from 'react-native';
+import { ThemeContextInterface, useTheme } from '../theme/useTheme';
 import Card from './Card';
 import Text from './Text';
 
@@ -17,7 +17,7 @@ interface ListItemType {
   onPress: (arg0: string) => void;
 }
 
-const ListItem = ({item, onPress}: ListItemType): JSX.Element => {
+const ListItem = ({item, onPress}: ListItemType): React.JSX.Element => {
   const {theme}: Partial<ThemeContextInterface> = useTheme();
 
   return (

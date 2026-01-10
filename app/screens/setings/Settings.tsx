@@ -2,14 +2,14 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { useDispatch } from 'react-redux';
-import { clearUser } from '../store/userSlice';
-import { removeSecureValue } from '../utils/keyChain';
+import { clearUser } from '../../store/userSlice';
+import { removeSecureValue } from '../../utils/keyChain';
 
-import Card from '../components/Card';
-import Layout from '../components/Layout';
-import MenuItem from '../components/MenuItem';
-import Text from '../components/Text';
-import { useTheme } from '../theme/useTheme';
+import Card from '../../components/Card';
+import Layout from '../../components/Layout';
+import MenuItem from '../../components/MenuItem';
+import Text from '../../components/Text';
+import { useTheme } from '../../theme/useTheme';
 
 const avatar = require('@/assets/images/avatar.png');
 

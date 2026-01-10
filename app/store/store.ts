@@ -2,16 +2,13 @@ import { reduxStorage } from '@/app/store/storage';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 // Slices
-import dummyNetwokSlice from './dummyNetworkSlice';
+
 import favoritesSlice from './favoritesSlice';
 import productsSlice from './productsSlice';
-import tasksSlice from './tasksSlice';
 import userSlice from './userSlice';
 
 const rootReducer = combineReducers({
-  todos: tasksSlice,
   user: userSlice,
-  dummyNetwork: dummyNetwokSlice,
   products: productsSlice,
   favorites: favoritesSlice,
 });
