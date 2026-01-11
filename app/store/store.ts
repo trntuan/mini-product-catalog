@@ -3,10 +3,10 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 // Slices
 
+import { STORAGE_KEYS } from '../types/constants';
 import favoritesSlice from './favoritesSlice';
 import productsSlice from './productsSlice';
 import userSlice from './userSlice';
-import { STORAGE_KEYS } from '../types/constants';
 
 const rootReducer = combineReducers({
   user: userSlice,
@@ -17,8 +17,6 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: STORAGE_KEYS.REDUX_ROOT,
   storage: reduxStorage,
-  // User data is now persisted so it survives app restarts
-  // Token is stored separately in Keychain for security
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
