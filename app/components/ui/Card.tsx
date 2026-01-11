@@ -1,8 +1,8 @@
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
-import { spacing } from '../theme/theme';
-import { CardPropsType } from '../types/components';
+import { useTheme } from '../../hooks/useTheme';
+import { spacing } from '../../theme/theme';
+import { CardPropsType } from '../../types/components';
 
 const Card = ({children, style}: CardPropsType) => {
   const {theme} = useTheme();

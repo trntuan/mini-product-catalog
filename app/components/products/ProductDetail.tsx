@@ -8,11 +8,11 @@ import { useCallback, useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useTheme } from '../hooks/useTheme';
-import { toggleFavorite } from '../store/favoritesSlice';
-import { clearProductDetail, fetchProductById } from '../store/productsSlice';
-import { AppDispatch, RootState } from '../store/store';
-import { CONTENT_KEYS } from '../types/content';
+import { useTheme } from '../../hooks/useTheme';
+import { toggleFavorite } from '../../store/favoritesSlice';
+import { clearProductDetail, fetchProductById } from '../../store/productsSlice';
+import { AppDispatch, RootState } from '../../store/store';
+import { CONTENT_KEYS } from '../../types/content';
 
 export function useProductDetail(productId: number) {
   const {theme} = useTheme();

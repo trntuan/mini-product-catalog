@@ -7,10 +7,10 @@ import {
   View
 } from 'react-native';
 
-import Layout from '../../components/Layout';
-import NotFound from '../../components/NotFound';
-import ProductItem from '../../components/ProductItem';
-import Text from '../../components/Text';
+import Layout from '../../components/ui/Layout';
+import NotFound from '../../components/feedback/NotFound';
+import ProductItem from '../../components/products/ProductItem';
+import Text from '../../components/ui/Text';
 import { useFavoriteProducts } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
 import { ROUTE_NAMES, ROUTE_PARAMS } from '../../types/constants';

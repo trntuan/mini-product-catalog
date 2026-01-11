@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 interface CustomLoadProps {
   isLoading: boolean;

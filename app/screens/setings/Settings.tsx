@@ -9,9 +9,9 @@ import { clearUser, updateUser } from '../../store/userSlice';
 import { KEYCHAIN_KEYS } from '../../types/constants';
 import { getSecureValue, removeSecureValue } from '../../utils/keyChain';
 
-import Card from '../../components/Card';
-import Layout from '../../components/Layout';
-import Text from '../../components/Text';
+import Card from '../../components/ui/Card';
+import Layout from '../../components/ui/Layout';
+import Text from '../../components/ui/Text';
 import { useTheme } from '../../hooks/useTheme';
 import { CONTENT_KEYS } from '../../types/content';
 

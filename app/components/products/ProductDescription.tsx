@@ -6,10 +6,10 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import Card from './Card';
-import Text from './Text';
-import { CONTENT_KEYS } from '../types/content';
-import { useTheme } from '../hooks/useTheme';
+import Card from '../ui/Card';
+import Text from '../ui/Text';
+import { CONTENT_KEYS } from '../../types/content';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ProductDescriptionProps {
   description: string;

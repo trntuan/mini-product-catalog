@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Platform, Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
 
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../../hooks/useTheme';
 
 export type ButtonProps = {
   onPress: () => void;

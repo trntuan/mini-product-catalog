@@ -183,7 +183,6 @@ export default function RootNavigation() {
             options={{
               headerShown: false,
               tabBarIcon: productsIcon,
-              // tabBarTestID: 'BottomTab.Products',
             }}
           />
           <Tab.Screen
@@ -192,16 +191,13 @@ export default function RootNavigation() {
             options={{
               headerShown: false,
               tabBarIcon: favoritesIcon,
-              // tabBarTestID: 'BottomTab.Favorites',
             }}
           />
           <Tab.Screen
             name="Settings"
             component={Settings}
             options={{
-              // headerShown: false,
               tabBarIcon: settingsIcon,
-              // tabBarTestID: 'BottomTab.Settings',
             }}
           />
         </Tab.Navigator>

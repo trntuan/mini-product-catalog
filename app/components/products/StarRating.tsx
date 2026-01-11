@@ -4,7 +4,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 export function useStarRating() {
   const {theme} = useTheme();

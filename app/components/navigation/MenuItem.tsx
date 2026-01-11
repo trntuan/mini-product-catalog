@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
-import { MenuItemPropsType } from '../types/components';
+import { useTheme } from '../../hooks/useTheme';
+import { MenuItemPropsType } from '../../types/components';
 
-import Text from './Text';
+import Text from '../ui/Text';
 
 const MenuItem = ({
   label = 'Menu Item',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
-import { spacing, typeSizes } from '../theme/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { spacing, typeSizes } from '../../theme/theme';
 
 const Input = ({style, error, ...rest}: any) => {
   const {theme} = useTheme();

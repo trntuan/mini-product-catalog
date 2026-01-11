@@ -6,9 +6,9 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
-import Text from './Text';
-import { getImageWidth, getScreenWidth } from '../utils/dimensions';
-import { useTheme } from '../hooks/useTheme';
+import Text from '../ui/Text';
+import { getImageWidth, getScreenWidth } from '../../utils/dimensions';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ProductImageCarouselProps {
   images: string[];

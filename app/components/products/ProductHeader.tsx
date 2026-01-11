@@ -6,9 +6,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import Card from './Card';
-import Text from './Text';
-import { useTheme } from '../hooks/useTheme';
+import Card from '../ui/Card';
+import Text from '../ui/Text';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ProductHeaderProps {
   title: string;

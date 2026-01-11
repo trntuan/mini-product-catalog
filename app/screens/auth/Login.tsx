@@ -4,12 +4,12 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import * as Yup from 'yup';
 
-import { Button } from '../../components/Button/Button';
-import Card from '../../components/Card';
-import CustomLoad from '../../components/CustomLoad';
-import { Input } from '../../components/Form';
-import Layout from '../../components/Layout';
-import Text from '../../components/Text';
+import CustomLoad from '../../components/feedback/CustomLoad';
+import { Button } from '../../components/ui/Button/Button';
+import Card from '../../components/ui/Card';
+import { Input } from '../../components/ui/Form';
+import Layout from '../../components/ui/Layout';
+import Text from '../../components/ui/Text';
 import { useAuth } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
 import type { ValuesType } from '../../types/auth';
@@ -100,7 +100,6 @@ const Login = () => {
                       onPress={() => {
                         handleGoogleLogin().catch((e) => {
                           console.error('Google login error:', e);
-                          // You might want to show an error message to the user here
                         });
                       }}
                       testID="Login.GoogleButton"

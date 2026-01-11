@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
-import { CONTENT_KEYS } from '../types/content';
-import Text from './Text';
+import { useTheme } from '../../hooks/useTheme';
+import { CONTENT_KEYS } from '../../types/content';
+import Text from '../ui/Text';
 
 interface OfflineBannerProps {
   message?: string;

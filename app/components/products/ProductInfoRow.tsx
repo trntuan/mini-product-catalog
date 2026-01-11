@@ -6,8 +6,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import Text from './Text';
-import { useTheme } from '../hooks/useTheme';
+import Text from '../ui/Text';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ProductInfoRowProps {
   label: string;
