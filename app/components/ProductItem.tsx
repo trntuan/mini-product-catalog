@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   contentGrid: {
     paddingTop: 8,
     paddingBottom: 2,
-    minHeight: 78,
+    minHeight: 86,
   },
   contentList: {
     paddingTop: 2,
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     width: '48%',
     paddingHorizontal: 8,
     paddingVertical: 8,
+    minHeight: 260,
   },
   cardList: {
     width: '100%',
