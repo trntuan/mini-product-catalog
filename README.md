@@ -2,11 +2,35 @@
 
 A React Native mobile application built with Expo for browsing and managing a product catalog.
 
-## Tech Stack & Versions
+## Versions
 
 - **Expo SDK**: 54.0.31
 - **React Native**: 0.81.5
 - **TypeScript**: 5.9.2
+
+---
+
+## Tech Stack
+
+* React Native (Expo)
+* TypeScript
+* Redux Toolkit
+* AsyncStorage
+* Google Sign-In
+* REST API (DummyJSON)
+
+---
+
+## Why This Architecture
+
+This project was designed to look and behave like a **production feature**, not a demo:
+
+* Redux Toolkit for predictable state management
+* API + caching + retry logic
+* Offline fallback
+* Pagination instead of loading everything
+* Debounced search for UX & performance
+* Local persistence for favorites
 
 ---
 
@@ -101,17 +125,6 @@ All features are built against a live API:
 
 ---
 
-## Tech Stack
-
-* React Native (Expo)
-* TypeScript
-* Redux Toolkit
-* AsyncStorage
-* Google Sign-In
-* REST API (DummyJSON)
-
----
-
 ## API Endpoints Used
 
 * Products
@@ -125,19 +138,6 @@ All features are built against a live API:
 
 * Categories
   `https://dummyjson.com/products/categories`
-
----
-
-## Why This Architecture
-
-This project was designed to look and behave like a **production feature**, not a demo:
-
-* Redux Toolkit for predictable state management
-* API + caching + retry logic
-* Offline fallback
-* Pagination instead of loading everything
-* Debounced search for UX & performance
-* Local persistence for favorites
 
 ---
 
