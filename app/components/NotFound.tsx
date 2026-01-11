@@ -18,11 +18,18 @@ const NotFound = ({
   const {theme} = useTheme();
   return (
     <View style={styles.container}>
-      <Ionicons name="search-outline" size={64} color={theme.color} style={styles.icon} />
+      <Ionicons
+        name="search-outline"
+        size={64}
+        color={theme.textMuted}
+        style={styles.icon}
+      />
       <Text variant="titleLarge" style={[styles.title, {color: theme.color}]}>
         {title}
       </Text>
-      <Text variant="bodyMedium" style={[styles.message, {color: theme.color}]}>
+      <Text
+        variant="bodyMedium"
+        style={[styles.message, {color: theme.textMuted}]}>
         {message}
       </Text>
     </View>

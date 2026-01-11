@@ -45,7 +45,7 @@ const ListItem = ({item, onPress}: ListItemType): React.JSX.Element => {
         <Ionicons
           name="checkbox"
           size={20}
-          color={item.done ? theme.primary : '#CECECE'}
+          color={item.done ? theme.primary : theme.cardBorderColor}
         />
       </Pressable>
     </Card>

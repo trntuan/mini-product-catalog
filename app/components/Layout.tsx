@@ -18,6 +18,20 @@ const Layout = ({children, style, ...rest}: LayoutPropsType) => {
       <View
         testID="Layout.LayoutContainer"
         style={[styles.layout, {backgroundColor: theme?.layoutBg}, style]}>
+        <View
+          pointerEvents="none"
+          style={[
+            styles.backgroundAccent,
+            {backgroundColor: theme.primarySoft},
+          ]}
+        />
+        <View
+          pointerEvents="none"
+          style={[
+            styles.backgroundAccentSecondary,
+            {backgroundColor: theme.accentSoft},
+          ]}
+        />
         {children}
       </View>
     </SafeAreaView>
@@ -32,5 +46,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     position: 'relative',
+  },
+  backgroundAccent: {
+    position: 'absolute',
+    top: -120,
+    left: -80,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    opacity: 0.45,
+  },
+  backgroundAccentSecondary: {
+    position: 'absolute',
+    top: 120,
+    right: -140,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    opacity: 0.3,
   },
 });

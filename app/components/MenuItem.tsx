@@ -36,11 +36,12 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    minHeight: 48,
+    minHeight: 52,
     alignItems: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#ccc',
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
   },
   pressedItem: {
     opacity: 0.6,

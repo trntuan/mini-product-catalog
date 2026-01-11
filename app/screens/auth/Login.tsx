@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import React from 'react';
-import { Image, Button as RNButton, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import * as Yup from 'yup';
 
+import { Button } from '../../components/Button/Button';
 import Card from '../../components/Card';
 import CustomLoad from '../../components/CustomLoad';
 import { Input } from '../../components/Form';
@@ -82,11 +83,10 @@ const Login = () => {
                         }
                       />
                     </View>
-                    <RNButton
-                      title={CONTENT_KEYS.BUTTONS.SIGN_IN}
+                    <Button
                       onPress={() => handleSubmit()}
-                      testID="Login.Button"
-                      color="#FF9900"
+                      text={CONTENT_KEYS.BUTTONS.SIGN_IN}
+                      style={styles.signInButton}
                     />
                     <View style={styles.dividerContainer}>
                       <View style={[styles.divider, {backgroundColor: theme.color + '30'}]} />
@@ -161,6 +161,9 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 24,
+  },
+  signInButton: {
+    marginBottom: 6,
   },
   dividerContainer: {
     flexDirection: 'row',

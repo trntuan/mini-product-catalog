@@ -10,9 +10,17 @@ export type TextProps = {
   variant?: keyof TextVariantTypes;
   children?: React.ReactNode;
   style?: StyleProp<TextStyle>;
+  numberOfLines?: number;
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
 };
 
-const Text = ({variant = 'bodyMedium', children, style}: TextProps) => {
+const Text = ({
+  variant = 'bodyMedium',
+  children,
+  style,
+  numberOfLines,
+  ellipsizeMode,
+}: TextProps) => {
   const {theme} = useTheme();
 
   // Check if "variant" is valid
@@ -28,7 +36,14 @@ const Text = ({variant = 'bodyMedium', children, style}: TextProps) => {
     style,
   ]);
 
-  return <RNText style={flattenedStyle}>{children}</RNText>;
+  return (
+    <RNText
+      style={flattenedStyle}
+      numberOfLines={numberOfLines}
+      ellipsizeMode={ellipsizeMode}>
+      {children}
+    </RNText>
+  );
 };
 
 export default Text;

@@ -8,6 +8,7 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import Text from './Text';
 import { getImageWidth, getScreenWidth } from '../utils/dimensions';
+import { useTheme } from '../hooks/useTheme';
 
 interface ProductImageCarouselProps {
   images: string[];
@@ -23,6 +24,7 @@ export default function ProductImageCarousel({
   currentImageIndex,
   onImageScroll,
 }: ProductImageCarouselProps) {
+  const {theme} = useTheme();
   return (
     <View style={styles.imageContainer}>
       <ScrollView
@@ -32,16 +34,19 @@ export default function ProductImageCarousel({
         onMomentumScrollEnd={onImageScroll}
         style={styles.imageScrollView}>
         {images.map((imageUri: string, index: number) => (
-          <Image
+          <View
             key={index}
-            source={{uri: imageUri}}
-            style={styles.productImage}
-            resizeMode="cover"
-          />
+            style={[styles.imageFrame, {backgroundColor: theme.cardBg, borderColor: theme.cardBorderColor}]}>
+            <Image
+              source={{uri: imageUri}}
+              style={styles.productImage}
+              resizeMode="cover"
+            />
+          </View>
         ))}
       </ScrollView>
       {images.length > 1 && (
-        <View style={styles.imageIndicator}>
+        <View style={[styles.imageIndicator, {backgroundColor: theme.color + 'B3'}]}>
           <Text variant="bodySmall" style={styles.imageIndicatorText}>
             {currentImageIndex + 1} / {images.length}
           </Text>
@@ -59,11 +64,19 @@ const styles = StyleSheet.create({
   imageScrollView: {
     width: SCREEN_WIDTH,
   },
-  productImage: {
+  imageFrame: {
     width: IMAGE_WIDTH,
     height: IMAGE_WIDTH,
     marginHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
     backgroundColor: '#f0f0f0',
   },
   imageIndicator: {

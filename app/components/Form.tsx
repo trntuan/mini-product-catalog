@@ -11,7 +11,7 @@ const Input = ({style, error, ...rest}: any) => {
         {...rest}
         style={[
           styles.input,
-          {color: theme.color, borderColor: theme.layoutBg},
+          {color: theme.color, borderColor: theme.cardBorderColor},
           {...style},
         ]}
       />

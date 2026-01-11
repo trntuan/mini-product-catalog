@@ -7,6 +7,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Text from './Text';
+import { useTheme } from '../hooks/useTheme';
 
 interface ProductInfoRowProps {
   label: string;
@@ -19,9 +20,10 @@ export default function ProductInfoRow({
   value,
   valueColor,
 }: ProductInfoRowProps) {
+  const {theme} = useTheme();
   return (
     <View style={styles.infoRow}>
-      <Text variant="titleSmall" style={styles.infoLabel}>
+      <Text variant="titleSmall" style={[styles.infoLabel, {color: theme.textMuted}]}>
         {label}
       </Text>
       <Text

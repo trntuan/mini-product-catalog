@@ -1,6 +1,6 @@
-import { Colors } from '@/constants/theme';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useTheme } from '../hooks/useTheme';
 
 interface CustomLoadProps {
   isLoading: boolean;
@@ -8,11 +8,12 @@ interface CustomLoadProps {
   opacity?: number;
 }
 
-const CustomLoad: React.FC<CustomLoadProps> = ({ 
-  isLoading, 
-  bg = "#dfe6e9", 
-  opacity = 0.6 
+const CustomLoad: React.FC<CustomLoadProps> = ({
+  isLoading,
+  bg,
+  opacity = 0.6,
 }) => {
+  const {theme} = useTheme();
   if (!isLoading) return null;
 
   return (
@@ -20,11 +21,11 @@ const CustomLoad: React.FC<CustomLoadProps> = ({
       style={[
         styles.overlay,
         {
-          backgroundColor: bg,
+          backgroundColor: bg ?? theme.layoutBg,
           opacity: opacity,
         },
       ]}>
-      <ActivityIndicator size="large" color={Colors.light.tint} />
+      <ActivityIndicator size="large" color={theme.primary} />
     </View>
   );
 };

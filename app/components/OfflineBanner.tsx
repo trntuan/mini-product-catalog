@@ -18,7 +18,7 @@ export default function OfflineBanner({
       style={[
         styles.banner,
         {
-          backgroundColor: '#FF9900',
+          backgroundColor: theme.primary,
         },
       ]}>
       <Text style={styles.bannerText}>{message}</Text>

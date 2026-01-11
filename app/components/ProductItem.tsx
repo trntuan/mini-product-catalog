@@ -10,79 +10,66 @@ import Text from './Text';
 interface ProductItemProps {
   product: Product;
   onPress: (productId: number) => void;
+  layout?: 'grid' | 'list';
 }
 
-const ProductItem = ({product, onPress}: ProductItemProps) => {
+const ProductItem = ({product, onPress, layout = 'grid'}: ProductItemProps) => {
   const {theme} = useTheme();
 
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <Ionicons
-            key={i}
-            name="star"
-            size={14}
-            color="#FFD700"
-            style={styles.star}
-          />,
-        );
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <Ionicons
-            key={i}
-            name="star-half"
-            size={14}
-            color="#FFD700"
-            style={styles.star}
-          />,
-        );
-      } else {
-        stars.push(
-          <Ionicons
-            key={i}
-            name="star-outline"
-            size={14}
-            color="#CCCCCC"
-            style={styles.star}
-          />,
-        );
-      }
-    }
-    return stars;
-  };
+  const isGrid = layout === 'grid';
 
   return (
-    <Card style={[styles.card, {shadowColor: '#000'}]}>
+    <Card
+      style={[
+        styles.card,
+        isGrid ? styles.cardGrid : styles.cardList,
+        styles.cardShadow,
+      ]}>
       <Pressable
         onPress={() => onPress(product.id)}
         style={({pressed}) => [
           styles.container,
+          isGrid ? styles.containerGrid : styles.containerList,
           pressed && styles.pressedContainer,
         ]}
         accessibilityLabel={`Product: ${product.title}`}
         accessibilityRole="button">
-        <Image
-          source={{uri: product.thumbnail}}
-          style={styles.thumbnail}
-          resizeMode="contain"
-        />
-        <View style={styles.content}>
-          <Text variant="titleSmall" style={[styles.title, {color: theme.color}]} >
+        <View
+          style={[
+            styles.imageContainer,
+            isGrid ? styles.imageGrid : styles.imageList,
+          ]}>
+          <Image
+            source={{uri: product.thumbnail}}
+            style={[styles.thumbnail, isGrid ? styles.thumbnailGrid : styles.thumbnailList]}
+            resizeMode={isGrid ? 'cover' : 'contain'}
+          />
+        </View>
+        <View style={[styles.content, isGrid ? styles.contentGrid : styles.contentList]}>
+          <Text
+            variant="bodySmall"
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[styles.categoryTag, {color: theme.textMuted}]}>
+            {product.category}
+          </Text>
+          <Text
+            variant="titleSmall"
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            style={[styles.title, {color: theme.color}]}>
             {product.title}
           </Text>
-          <Text variant="titleLarge" style={[styles.price, {color: theme.primary}]}>
-            ${product.price.toFixed(2)}
-          </Text>
-          <View style={styles.ratingContainer}>
-            <View style={styles.stars}>{renderStars(product.rating)}</View>
-            <Text variant="bodySmall" style={styles.ratingText}>
-              {product.rating.toFixed(1)}
+          <View style={styles.metaRow}>
+            <Text variant="titleLarge" style={[styles.price, {color: theme.color}]}>
+              ${product.price.toFixed(2)}
             </Text>
+            <View style={styles.ratingContainer}>
+              <Ionicons name="star" size={14} color={theme.primary} style={styles.star} />
+              <Text variant="bodySmall" style={[styles.ratingText, {color: theme.textMuted}]}>
+                {product.rating.toFixed(2)}
+              </Text>
+            </View>
           </View>
         </View>
       </Pressable>
@@ -94,7 +81,7 @@ export default ProductItem;
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: 12,
+    borderWidth: 0,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -107,45 +94,109 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  cardShadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 3},
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
   container: {
+    gap: 8,
+    padding: 6,
+  },
+  containerGrid: {
+    flexDirection: 'column',
+  },
+  containerList: {
     flexDirection: 'row',
-    gap: 12,
-    padding: 4,
   },
   pressedContainer: {
     opacity: 0.7,
   },
+  imageContainer: {
+    overflow: 'hidden',
+    backgroundColor: '#F0F0F0',
+  },
+  imageGrid: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 12,
+  },
+  imageList: {
+    width: 110,
+    height: 110,
+    borderRadius: 12,
+  },
   thumbnail: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    backgroundColor: '#F8F8F8',
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailGrid: {
+    borderRadius: 12,
+  },
+  thumbnailList: {
+    borderRadius: 12,
   },
   content: {
     flex: 1,
+  },
+  contentGrid: {
+    paddingTop: 8,
+    paddingBottom: 2,
+    minHeight: 78,
+  },
+  contentList: {
+    paddingTop: 2,
+    paddingBottom: 2,
     justifyContent: 'space-between',
-    paddingVertical: 4,
+  },
+  categoryTag: {
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontSize: 10,
+    fontWeight: '700',
+    marginBottom: 4,
   },
   title: {
-    marginBottom: 8,
-    lineHeight: 20,
+    marginBottom: 4,
+    lineHeight: 17,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   price: {
     fontWeight: '700',
-    fontSize: 18,
-    marginBottom: 8,
+    fontSize: 15,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  stars: {
-    flexDirection: 'row',
   },
   star: {
     marginRight: 2,
   },
   ratingText: {
     opacity: 0.7,
+  },
+  cardGrid: {
+    alignSelf: 'flex-start',
+    width: '48%',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+  },
+  cardList: {
+    width: '100%',
+    alignSelf: 'stretch',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
 });

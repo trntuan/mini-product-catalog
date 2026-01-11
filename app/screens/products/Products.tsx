@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback } from 'react';
+import React, { useCallback, useLayoutEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -73,9 +73,109 @@ export default function Products() {
     [navigation],
   );
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <View
+          style={[
+            styles.headerSearchWrapper,
+            {borderColor: theme.cardBorderColor},
+          ]}>
+          <Ionicons
+            name="search"
+            size={18}
+            color={theme.textMuted}
+            style={styles.headerSearchIcon}
+          />
+          <TextInput
+            style={[styles.headerSearchInput, {color: theme.color}]}
+            placeholder={CONTENT_KEYS.PRODUCTS.PLACEHOLDERS.SEARCH_PRODUCTS}
+            placeholderTextColor={theme.textMuted}
+            value={localSearchQuery}
+            onChangeText={setLocalSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+          />
+          {localSearchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setLocalSearchQuery('')}
+              style={styles.headerClearButton}
+              accessibilityLabel={CONTENT_KEYS.BUTTONS.CLEAR}>
+              <Ionicons name="close-circle" size={18} color={theme.textMuted} />
+            </TouchableOpacity>
+          )}
+        </View>
+      ),
+      headerRight: () => (
+        <View style={styles.headerFilters}>
+          <TouchableOpacity
+            style={[
+              styles.headerIconButton,
+              {
+                backgroundColor:
+                  selectedCategory !== null ? theme.primarySoft : theme.cardBg,
+                borderColor: theme.cardBorderColor,
+              },
+            ]}
+            onPress={() => setShowCategoryModal(true)}
+            accessibilityLabel={CONTENT_KEYS.LABELS.CATEGORY}>
+            <Ionicons
+              name="funnel-outline"
+              size={18}
+              color={selectedCategory !== null ? theme.primary : theme.textMuted}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.headerIconButton,
+              {
+                backgroundColor:
+                  sortOption !== 'none' ? theme.primarySoft : theme.cardBg,
+                borderColor: theme.cardBorderColor,
+              },
+            ]}
+            onPress={() => setShowSortModal(true)}
+            accessibilityLabel={CONTENT_KEYS.LABELS.SORT}>
+            <Ionicons
+              name="swap-vertical-outline"
+              size={18}
+              color={sortOption !== 'none' ? theme.primary : theme.textMuted}
+            />
+          </TouchableOpacity>
+          {hasActiveFilters && (
+            <TouchableOpacity
+              style={[styles.headerIconButton, {borderColor: theme.error}]}
+              onPress={handleClearFilters}
+              accessibilityLabel={CONTENT_KEYS.BUTTONS.CLEAR}>
+              <Ionicons name="close" size={18} color={theme.error} />
+            </TouchableOpacity>
+          )}
+        </View>
+      ),
+    });
+  }, [
+    handleClearFilters,
+    hasActiveFilters,
+    localSearchQuery,
+    navigation,
+    selectedCategory,
+    selectedCategoryName,
+    setLocalSearchQuery,
+    setShowCategoryModal,
+    setShowSortModal,
+    sortOption,
+    theme.cardBg,
+    theme.cardBorderColor,
+    theme.color,
+    theme.error,
+    theme.primary,
+    theme.textMuted,
+  ]);
+
   const renderProduct = useCallback(
     ({item}: {item: Product}) => (
-      <ProductItem product={item} onPress={handleProductPress} />
+      <ProductItem product={item} onPress={handleProductPress} layout="grid" />
     ),
     [handleProductPress],
   );
@@ -153,107 +253,15 @@ export default function Products() {
       {/* Offline Banner */}
       {isOffline && <OfflineBanner />}
       
-      {/* Search, Filter, and Sort Controls */}
-      <View style={[styles.controlsContainer, {backgroundColor: theme.cardBg}]}>
-        {/* Search Input */}
-        <View style={styles.searchContainer}>
-          <View style={[styles.searchInputWrapper, {backgroundColor: theme.layoutBg, borderColor: theme.cardBorderColor}]}>
-            <Ionicons name="search" size={20} color={theme.color} style={styles.searchIcon} />
-            <TextInput
-              style={[
-                styles.searchInput,
-                {
-                  color: theme.color,
-                },
-              ]}
-              placeholder={CONTENT_KEYS.PRODUCTS.PLACEHOLDERS.SEARCH_PRODUCTS}
-              placeholderTextColor={theme.color + '80'}
-              value={localSearchQuery}
-              onChangeText={setLocalSearchQuery}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {localSearchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={() => setLocalSearchQuery('')}
-                style={styles.clearSearchButton}>
-                <Ionicons name="close-circle" size={20} color={theme.color} />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {/* Filter and Sort Buttons */}
-        <View style={styles.filterRow}>
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              {
-                backgroundColor:
-                  selectedCategory !== null ? theme.primary : theme.layoutBg,
-                borderColor: theme.cardBorderColor,
-              },
-            ]}
-            onPress={() => setShowCategoryModal(true)}>
-            <Text
-              style={[
-                styles.filterButtonText,
-                {
-                  color:
-                    selectedCategory !== null
-                      ? '#ffffff'
-                      : theme.color,
-                },
-              ]}>
-              {getCategoryDisplayName(selectedCategoryName)}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              {
-                backgroundColor:
-                  sortOption !== 'none' ? theme.primary : theme.layoutBg,
-                borderColor: theme.cardBorderColor,
-              },
-            ]}
-            onPress={() => setShowSortModal(true)}>
-            <Text
-              style={[
-                styles.filterButtonText,
-                {
-                  color: sortOption !== 'none' ? '#ffffff' : theme.color,
-                },
-              ]}>
-              {sortOption === 'none'
-                ? CONTENT_KEYS.LABELS.SORT
-                : sortOption === 'price-asc'
-                ? CONTENT_KEYS.PRODUCTS.LABELS.SORT_PRICE_ASC
-                : sortOption === 'price-desc'
-                ? CONTENT_KEYS.PRODUCTS.LABELS.SORT_PRICE_DESC
-                : CONTENT_KEYS.PRODUCTS.LABELS.SORT_RATING_DESC}
-            </Text>
-          </TouchableOpacity>
-
-          {hasActiveFilters && (
-            <TouchableOpacity
-              style={[styles.clearButton, {borderColor: theme.error}]}
-              onPress={handleClearFilters}>
-              <Text style={[styles.clearButtonText, {color: theme.error}]}>
-                {CONTENT_KEYS.BUTTONS.CLEAR}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
       <FlatList
+        key="products-grid-2"
         data={displayProducts}
         renderItem={renderProduct}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
         style={styles.list}
+        numColumns={2}
+        columnWrapperStyle={styles.listRow}
         refreshControl={
           <RefreshControl
             refreshing={status === 'loading' && !loadingMore}
@@ -463,8 +471,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    gap: 12,
+  },
+  listRow: {
+    gap: 12,
+    paddingBottom: 12,
+    justifyContent: 'space-between',
   },
   centerContainer: {
     flex: 1,
@@ -509,67 +523,42 @@ const styles = StyleSheet.create({
     minWidth: 100,
     marginTop: 8,
   },
-  controlsContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E0E0E0',
-  },
-  searchContainer: {
-    marginBottom: 12,
-  },
-  searchInputWrapper: {
+  headerSearchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 48,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    gap: 8,
-  },
-  searchIcon: {
-    opacity: 0.6,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    padding: 0,
-  },
-  clearSearchButton: {
-    padding: 4,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  filterButton: {
-    flex: 1,
     height: 40,
-    borderWidth: 1,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    flex: 1,
+    marginRight: 10,
+  },
+  headerSearchIcon: {
+    opacity: 0.8,
+  },
+  headerSearchInput: {
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 0,
+    paddingHorizontal: 8,
+  },
+  headerClearButton: {
+    padding: 2,
+  },
+  headerFilters: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
+    marginRight: 8,
   },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  clearButton: {
-    height: 40,
+  headerIconButton: {
+    height: 36,
+    width: 36,
     borderWidth: 1,
-    borderRadius: 8,
-    justifyContent: 'center',
+    borderRadius: 18,
     alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  clearButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
+    justifyContent: 'center',
   },
   modalOverlay: {
     flex: 1,
