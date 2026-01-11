@@ -1,4 +1,4 @@
-# Mini Product Catalog
+# Mini Product Catalog App
 
 A React Native mobile application built with Expo for browsing and managing a product catalog.
 
