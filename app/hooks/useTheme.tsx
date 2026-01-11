@@ -5,7 +5,7 @@
 import React from 'react';
 
 // Import theme from theme file
-import { theme, themeType } from './theme';
+import { theme, themeType } from '../theme/theme';
 
 // Types
 export interface ThemeContextInterface {

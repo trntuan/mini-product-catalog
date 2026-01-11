@@ -15,6 +15,39 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': API_CONFIG.CONTENT_TYPES.JSON,
     Accept: 'application/json',
   },
+  transformRequest: [
+    (data, headers) => {
+      // For JSON requests, ensure data is stringified
+      // Handle objects, arrays, and other non-string data
+      if (data !== null && data !== undefined) {
+        // Get Content-Type header (case-insensitive)
+        const contentType = headers['Content-Type'] || headers['content-type'] || 
+                           (headers as any)?.['Content-Type'] || (headers as any)?.['content-type'];
+        
+        if (contentType === API_CONFIG.CONTENT_TYPES.JSON || 
+            contentType?.includes('application/json')) {
+          // If it's already a string, return as is
+          if (typeof data === 'string') {
+            return data;
+          }
+          // Otherwise stringify objects/arrays
+          if (typeof data === 'object') {
+            return JSON.stringify(data);
+          }
+        }
+        // For form-urlencoded, return as is (handled by postFormUrlEncoded)
+        if (contentType === API_CONFIG.CONTENT_TYPES.FORM_URLENCODED ||
+            contentType?.includes('application/x-www-form-urlencoded')) {
+          return data;
+        }
+        // For form-data, return as is
+        if (contentType?.includes('multipart/form-data')) {
+          return data;
+        }
+      }
+      return data;
+    },
+  ],
 });
 
 // Request interceptor - Add auth token, modify requests
@@ -41,10 +74,16 @@ apiClient.interceptors.request.use(
     const method = config.method?.toUpperCase() || 'UNKNOWN';
     const url = `${config.baseURL || ''}${config.url || ''}`;
     const params = config.params ? JSON.stringify(config.params) : '';
+    const data = config.data ? (typeof config.data === 'string' ? config.data : JSON.stringify(config.data)) : '';
     const hasAuth = !!config.headers.Authorization;
     
+    // For GET/DELETE requests, log params (query string)
+    // For POST/PUT/PATCH requests, log data (request body)
+    const isBodyRequest = ['POST', 'PUT', 'PATCH'].includes(method);
+    const requestData = isBodyRequest ? (data || undefined) : (params || undefined);
+    
     console.log(`[API Request] ${method} ${url}`, {
-      params: params || undefined,
+      [isBodyRequest ? 'data' : 'params']: requestData,
       hasAuth,
       timestamp: new Date().toISOString(),
     });
@@ -81,10 +120,13 @@ apiClient.interceptors.response.use(
       const method = error.config.method?.toUpperCase() || 'UNKNOWN';
       const url = `${error.config.baseURL || ''}${error.config.url || ''}`;
       const status = error.response?.status || 'NO_RESPONSE';
+      const responseData = error.response?.data;
       
       console.error(`[API Error] ${method} ${url}`, {
         status,
         message: error.message,
+        responseData: responseData ? (typeof responseData === 'string' ? responseData : JSON.stringify(responseData)) : undefined,
+        requestData: error.config.data ? (typeof error.config.data === 'string' ? error.config.data : JSON.stringify(error.config.data)) : undefined,
         timestamp: new Date().toISOString(),
       });
     } else {

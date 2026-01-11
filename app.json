@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mini-product-catalog",
+    "name": "Mini Product Catalog",
     "slug": "mini-product-catalog",
     "displayName": "Mini Product Catalog",
     "version": "1.0.0",
@@ -11,7 +11,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.miniproductcatalog"
+      "bundleIdentifier": "com.miniproduct.catalog",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +23,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.miniproductcatalog"
+      "package": "com.miniproduct.catalog",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
@@ -30,19 +32,36 @@
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
       [
-        "expo-splash-screen",
+        "expo-build-properties",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "android": {
+            "googleServicesFile": "./google-services.json"
+          },
+          "ios": {
+            "googleServicesFile": "./GoogleService-Info.plist"
+          }
         }
-      ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "splash": {
+      "image": "./assets/images/splashscreen_logo.png", // Update this path
+      "resizeMode": "contain", // or "cover", "center"
+      "backgroundColor": "#FFFFFF" // Set a background color
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "463f72eb-ffb3-4e0c-b12a-b2cb6beb97e2"
+      }
     }
   }
 }

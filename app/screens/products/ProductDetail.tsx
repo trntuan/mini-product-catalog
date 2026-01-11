@@ -1,144 +1,42 @@
-import { Ionicons } from '@expo/vector-icons';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import React from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
-  Image,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Button } from '../../components/Button/Button';
-import Card from '../../components/Card';
 import Layout from '../../components/Layout';
+import ProductDescription from '../../components/ProductDescription';
+import ProductHeader from '../../components/ProductHeader';
+import ProductImageCarousel from '../../components/ProductImageCarousel';
+import ProductInfoCard from '../../components/ProductInfoCard';
 import Text from '../../components/Text';
-import { useTheme } from '../../theme/useTheme';
+import { useImageCarousel, useProductDetail, useStarRating } from '../../hooks';
+import { useTheme } from '../../hooks/useTheme';
+import { CONTENT_KEYS } from '../../types/content';
+import type { ProductDetailRouteProp } from '../../types/navigation';
+import { getImageWidth } from '../../utils/dimensions';
 
-import { toggleFavorite } from '../../store/favoritesSlice';
-import { clearProductDetail, fetchProductById } from '../../store/productsSlice';
-import { AppDispatch, RootState } from '../../store/store';
-
-type ProductsStackParamList = {
-  ProductsList: undefined;
-  ProductDetail: {productId: number};
-};
-
-type ProductDetailRouteProp = RouteProp<ProductsStackParamList, 'ProductDetail'>;
-
-const {width: SCREEN_WIDTH} = Dimensions.get('window');
-const IMAGE_WIDTH = SCREEN_WIDTH - 32;
+// Screen dimension constants
+const IMAGE_WIDTH = getImageWidth();
 
 export default function ProductDetail() {
   const {theme} = useTheme();
-  const dispatch = useDispatch<AppDispatch>();
-  const navigation = useNavigation();
   const route = useRoute<ProductDetailRouteProp>();
   const {productId} = route.params;
 
-  const product = useSelector(
-    (state: RootState) => state.products.productDetail.product,
-  );
-  const status = useSelector(
-    (state: RootState) => state.products.productDetail.status,
-  );
-  const error = useSelector(
-    (state: RootState) => state.products.productDetail.error,
-  );
-  const favoriteIds = useSelector(
-    (state: RootState) => state.favorites.favoriteIds,
-  );
+  const {
+    product,
+    status,
+    error,
+    handleRetry,
+  } = useProductDetail(productId);
 
-  const isFavorite = product ? favoriteIds.includes(product.id) : false;
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  useEffect(() => {
-    dispatch(fetchProductById(productId));
-
-    return () => {
-      dispatch(clearProductDetail());
-    };
-  }, [dispatch, productId]);
-
-  const handleToggleFavorite = useCallback(() => {
-    if (product) {
-      dispatch(toggleFavorite(product.id));
-    }
-  }, [dispatch, product]);
-
-  useEffect(() => {
-    navigation.setOptions({
-      title: product?.title || 'Product Details',
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={handleToggleFavorite}
-          style={styles.favoriteButton}
-          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          accessibilityRole="button">
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
-            size={24}
-            color={isFavorite ? '#FF6B6B' : theme.color}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, product, isFavorite, handleToggleFavorite, theme.color]);
-
-  const handleRetry = useCallback(() => {
-    dispatch(fetchProductById(productId));
-  }, [dispatch, productId]);
-
-  const handleImageScroll = useCallback((event: any) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / IMAGE_WIDTH);
-    setCurrentImageIndex(index);
-  }, []);
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <Ionicons
-            key={i}
-            name="star"
-            size={18}
-            color="#FFD700"
-            style={styles.star}
-          />,
-        );
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <Ionicons
-            key={i}
-            name="star-half"
-            size={18}
-            color="#FFD700"
-            style={styles.star}
-          />,
-        );
-      } else {
-        stars.push(
-          <Ionicons
-            key={i}
-            name="star-outline"
-            size={18}
-            color="#CCCCCC"
-            style={styles.star}
-          />,
-        );
-      }
-    }
-    return stars;
-  };
+  const {currentImageIndex, handleImageScroll} = useImageCarousel(IMAGE_WIDTH);
+  const {renderStars} = useStarRating();
 
   if (status === 'loading') {
     return (
@@ -146,7 +44,7 @@ export default function ProductDetail() {
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={theme.primary} />
           <Text style={[styles.loadingText, {color: theme.color}]}>
-            Loading product details...
+            {CONTENT_KEYS.PRODUCTS.MESSAGES.LOADING_PRODUCT_DETAILS}
           </Text>
         </View>
       </Layout>
@@ -158,12 +56,12 @@ export default function ProductDetail() {
       <Layout>
         <View style={styles.centerContainer}>
           <Text variant="titleLarge" style={[styles.errorTitle, {color: theme.error}]}>
-            Error
+            {CONTENT_KEYS.PRODUCTS.TITLES.ERROR}
           </Text>
           <Text style={[styles.errorMessage, {color: theme.color}]}>
-            {error || 'Failed to load product details'}
+            {error || CONTENT_KEYS.PRODUCTS.MESSAGES.FAILED_TO_LOAD_DETAILS}
           </Text>
-          <Button onPress={handleRetry} text="Retry" style={styles.retryButton} />
+          <Button onPress={handleRetry} text={CONTENT_KEYS.BUTTONS.RETRY} style={styles.retryButton} />
         </View>
       </Layout>
     );
@@ -180,91 +78,28 @@ export default function ProductDetail() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         {/* Image Carousel */}
-        <View style={styles.imageContainer}>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={handleImageScroll}
-            style={styles.imageScrollView}>
-            {product.images.map((imageUri, index) => (
-              <Image
-                key={index}
-                source={{uri: imageUri}}
-                style={styles.productImage}
-                resizeMode="cover"
-              />
-            ))}
-          </ScrollView>
-          {product.images.length > 1 && (
-            <View style={styles.imageIndicator}>
-              <Text variant="bodySmall" style={styles.imageIndicatorText}>
-                {currentImageIndex + 1} / {product.images.length}
-              </Text>
-            </View>
-          )}
-        </View>
+        <ProductImageCarousel
+          images={product.images}
+          currentImageIndex={currentImageIndex}
+          onImageScroll={handleImageScroll}
+        />
 
         {/* Product Details */}
         <View style={styles.detailsContainer}>
-          <Card style={styles.card}>
-            <Text variant="titleLarge" style={styles.title}>
-              {product.title}
-            </Text>
-            <View style={styles.priceRow}>
-              <Text variant="titleLarge" style={[styles.price, {color: theme.primary}]}>
-                ${product.price.toFixed(2)}
-              </Text>
-          
-            </View>
-            <View style={styles.ratingContainer}>
-              <View style={styles.stars}>{renderStars(product.rating)}</View>
-              <Text variant="bodyMedium" style={styles.ratingText}>
-                {product.rating.toFixed(1)}
-              </Text>
-            </View>
-          </Card>
+          <ProductHeader
+            title={product.title}
+            price={product.price}
+            rating={product.rating}
+            renderStars={renderStars}
+          />
 
-          <Card style={styles.card}>
-            <Text variant="titleSmall" style={styles.sectionTitle}>
-              Description
-            </Text>
-            <Text variant="bodyMedium" style={styles.description}>
-              {product.description}
-            </Text>
-          </Card>
+          <ProductDescription description={product.description} />
 
-          <Card style={styles.card}>
-            <View style={styles.infoRow}>
-              <Text variant="titleSmall" style={styles.infoLabel}>
-                Brand:
-              </Text>
-              <Text variant="bodyMedium" style={styles.infoValue}>
-                {product.brand}
-              </Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text variant="titleSmall" style={styles.infoLabel}>
-                Category:
-              </Text>
-              <Text variant="bodyMedium" style={styles.infoValue}>
-                {product.category}
-              </Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text variant="titleSmall" style={styles.infoLabel}>
-                Stock:
-              </Text>
-              <Text
-                variant="bodyMedium"
-                style={[
-                  styles.infoValue,
-                  {color: product.stock > 0 ? theme.primary : theme.error},
-                ]}>
-                {product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
-              </Text>
-            </View>
-          </Card>
+          <ProductInfoCard
+            brand={product.brand}
+            category={product.category}
+            stock={product.stock}
+          />
         </View>
       </ScrollView>
     </Layout>
@@ -297,89 +132,7 @@ const styles = StyleSheet.create({
   retryButton: {
     minWidth: 120,
   },
-  imageContainer: {
-    position: 'relative',
-    marginBottom: 16,
-  },
-  imageScrollView: {
-    width: SCREEN_WIDTH,
-  },
-  productImage: {
-    width: IMAGE_WIDTH,
-    height: IMAGE_WIDTH,
-    marginHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-  },
-  imageIndicator: {
-    position: 'absolute',
-    bottom: 16,
-    right: 32,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  imageIndicatorText: {
-    color: '#ffffff',
-  },
   detailsContainer: {
     paddingHorizontal: 16,
-  },
-  card: {
-    marginBottom: 16,
-  },
-  title: {
-    marginBottom: 12,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 12,
-  },
-  price: {
-    fontWeight: 'bold',
-  },
-
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stars: {
-    flexDirection: 'row',
-  },
-  star: {
-    marginRight: 2,
-  },
-  ratingText: {
-    opacity: 0.7,
-  },
-  sectionTitle: {
-    marginBottom: 8,
-    fontWeight: 'bold',
-  },
-  description: {
-    lineHeight: 22,
-    opacity: 0.8,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  infoLabel: {
-    fontWeight: 'bold',
-    opacity: 0.7,
-  },
-  infoValue: {
-    flex: 1,
-    textAlign: 'right',
-  },
-  favoriteButton: {
-    marginRight: 16,
-    padding: 4,
   },
 });

@@ -1,7 +1,7 @@
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import * as React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { ThemeContextInterface, useTheme } from '../theme/useTheme';
+import { ThemeContextInterface, useTheme } from '../hooks/useTheme';
 import Card from './Card';
 import Text from './Text';
 

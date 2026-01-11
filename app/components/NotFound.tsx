@@ -1,14 +1,20 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
+import { StyleSheet, View } from 'react-native';
 
-import {useTheme} from '../theme/useTheme';
+import { useTheme } from '../hooks/useTheme';
+import { CONTENT_KEYS } from '../types/content';
 import Text from './Text';
 
+interface NotFoundProps {
+  title?: string;
+  message?: string;
+}
+
 const NotFound = ({
-  title = 'Not Found',
-  message = 'There is nothing to show',
-}) => {
+  title = CONTENT_KEYS.NOT_FOUND.DEFAULT_TITLE,
+  message = CONTENT_KEYS.NOT_FOUND.DEFAULT_MESSAGE,
+}: NotFoundProps) => {
   const {theme} = useTheme();
   return (
     <View style={styles.container}>

@@ -1,128 +1,33 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
-import React, { useState } from 'react';
-import { Button, Image, ScrollView, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { Image, Button as RNButton, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import * as Yup from 'yup';
 
-import { useDispatch } from 'react-redux';
-import { ApiException } from '../../api';
 import Card from '../../components/Card';
 import CustomLoad from '../../components/CustomLoad';
 import { Input } from '../../components/Form';
 import Layout from '../../components/Layout';
 import Text from '../../components/Text';
-import { useTheme } from '../../theme/useTheme';
-import { authService } from '../../services';
-import { updateUser } from '../../store/userSlice';
-import { KEYCHAIN_KEYS } from '../../types/constants';
-import { transformToFormikErrors } from '../../utils/form';
-import { setSecureValue } from '../../utils/keyChain';
-const AppIcon = require('@/assets/images/appicon.png');
+import { useAuth } from '../../hooks';
+import { useTheme } from '../../hooks/useTheme';
+import type { ValuesType } from '../../types/auth';
+import { CONTENT_KEYS } from '../../types/content';
 
-interface ValuesType {
-  username: string;
-  password: string;
-}
+const AppIcon = require('@/assets/images/appicon.png');
 
 const initialValues: ValuesType = {username: '', password: ''};
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
-    .min(5, 'Username must contain atleast 5 characters')
-    .required('Required'),
-  password: Yup.string().min(5, 'Too Short!').required('Required'),
+    .min(5, CONTENT_KEYS.AUTH.VALIDATION.USERNAME_MIN_LENGTH)
+    .required(CONTENT_KEYS.AUTH.VALIDATION.REQUIRED),
+  password: Yup.string().min(5, CONTENT_KEYS.AUTH.VALIDATION.TOO_SHORT).required(CONTENT_KEYS.AUTH.VALIDATION.REQUIRED),
 });
 
 const Login = () => {
-  const dispatch = useDispatch();
   const {theme} = useTheme();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLogin = async (values: ValuesType, {setErrors}: any) => {
-    // Create request body object
-    const reqObj = {
-      username: values.username,
-      password: values.password,
-    };
-    
-    setIsLoading(true);
-    
-    try {
-      // Use new authService
-      const response = await authService.login(reqObj);
-      
-      if (response?.accessToken) {
-        const {
-          accessToken,
-          refreshToken,
-          firstName,
-          lastName,
-          username,
-        } = response;
-        
-        // Combine firstName and lastName to create name
-        const name = [firstName, lastName].filter(Boolean).join(' ') || '';
-        
-        dispatch(updateUser({name, username, token: accessToken}));
-        setSecureValue(KEYCHAIN_KEYS.TOKEN, accessToken);
-        setSecureValue(KEYCHAIN_KEYS.REFRESH_TOKEN, refreshToken || '');
-      }
-    } catch (e: any) {
-      // Handle ApiException errors
-      if (e instanceof ApiException) {
-        // Handle field-specific errors
-        if (e.errors && typeof e.errors === 'object') {
-          // Convert Record<string, string[]> to array format for transformToFormikErrors
-          const errorsArray = Object.entries(e.errors).flatMap(([param, messages]: [string, string[]]) =>
-            messages.map((msg: string) => ({
-              location: 'body',
-              msg: msg,
-              param: param,
-            }))
-          );
-          let result = transformToFormikErrors(errorsArray);
-          setErrors(result);
-        } 
-        // Handle general error message
-        else {
-          setErrors({
-            password: e.message,
-          });
-        }
-      }
-      // Handle legacy axios error format (for backward compatibility)
-      else if (e.response?.data?.errors) {
-        // Check if it's already an array format
-        if (Array.isArray(e.response.data.errors)) {
-          let result = transformToFormikErrors(e.response.data.errors);
-          setErrors(result);
-        } else {
-          // Convert Record format to array
-          const errorsArray = Object.entries(e.response.data.errors).flatMap(([param, messages]: [string, any]) =>
-            (Array.isArray(messages) ? messages : [messages]).map((msg: string) => ({
-              location: 'body',
-              msg: msg,
-              param: param,
-            }))
-          );
-          let result = transformToFormikErrors(errorsArray);
-          setErrors(result);
-        }
-      } 
-      else if (e.response?.data?.message) {
-        setErrors({
-          password: e.response.data.message,
-        });
-      }
-      // Handle other errors
-      else {
-        setErrors({
-          password: e.message || 'Login failed. Please try again.',
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {isLoading, handleLogin, handleGoogleLogin} = useAuth();
 
   return (
     <Layout>
@@ -147,15 +52,15 @@ const Login = () => {
                       <Image source={AppIcon} style={styles.appIcon} />
                     </View>
                     <Text variant="titleLarge" style={[styles.welcomeText, {color: theme.color}]}>
-                      Welcome Back
+                      {CONTENT_KEYS.AUTH.TITLES.WELCOME_BACK}
                     </Text>
                     <Text variant="bodyMedium" style={[styles.subtitleText, {color: theme.color}]}>
-                      Sign in to continue shopping
+                      {CONTENT_KEYS.AUTH.MESSAGES.SIGN_IN_TO_CONTINUE}
                     </Text>
                     <View style={styles.inputContainer}>
                       <Input
                         testID="Login.Username"
-                        placeholder="Username or Email"
+                        placeholder={CONTENT_KEYS.AUTH.PLACEHOLDERS.USERNAME_OR_EMAIL}
                         onChangeText={handleChange('username')}
                         onBlur={handleBlur('username')}
                         value={values.username}
@@ -167,7 +72,7 @@ const Login = () => {
                       />
                       <Input
                         testID="Login.Password"
-                        placeholder="Password"
+                        placeholder={CONTENT_KEYS.AUTH.PLACEHOLDERS.PASSWORD}
                         onChangeText={handleChange('password')}
                         onBlur={handleBlur('password')}
                         value={values.password}
@@ -177,12 +82,34 @@ const Login = () => {
                         }
                       />
                     </View>
-                    <Button
-                      title="Sign In"
+                    <RNButton
+                      title={CONTENT_KEYS.BUTTONS.SIGN_IN}
                       onPress={() => handleSubmit()}
                       testID="Login.Button"
                       color="#FF9900"
                     />
+                    <View style={styles.dividerContainer}>
+                      <View style={[styles.divider, {backgroundColor: theme.color + '30'}]} />
+                      <Text variant="bodySmall" style={[styles.dividerText, {color: theme.color}]}>
+                        {CONTENT_KEYS.LABELS.OR}
+                      </Text>
+                      <View style={[styles.divider, {backgroundColor: theme.color + '30'}]} />
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.googleButton, {borderColor: theme.color + '40'}]}
+                      onPress={() => {
+                        handleGoogleLogin().catch((e) => {
+                          console.error('Google login error:', e);
+                          // You might want to show an error message to the user here
+                        });
+                      }}
+                      testID="Login.GoogleButton"
+                      disabled={isLoading}>
+                      <Ionicons name="logo-google" size={20} color="#4285F4" style={styles.googleIcon} />
+                      <Text style={[styles.googleButtonText, {color: theme.color}]}>
+                        {CONTENT_KEYS.BUTTONS.CONTINUE_WITH_GOOGLE}
+                      </Text>
+                    </TouchableOpacity>
                   </>
                 );
               }}
@@ -234,5 +161,36 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 24,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    opacity: 0.6,
+    fontSize: 12,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    borderWidth: 1,
+    minHeight: 44,
+  },
+  googleIcon: {
+    marginRight: 12,
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { productsService, Category } from '../services';
+import { Category, productsService } from '../services';
 import {
   loadProductsFromCache,
   saveProductsToCache
@@ -38,7 +38,6 @@ type ProductsState = {
   skip: number;
   limit: number;
   error: string | null;
-  searchQuery: string;
   selectedCategory: string | null; // Store category slug
   selectedCategoryName: string | null; // Store category name for display
   sortOption: 'none' | 'price-asc' | 'price-desc' | 'rating-desc';
@@ -70,7 +69,6 @@ const initialState: InitialState = {
     skip: 0,
     limit: 10,
     error: null,
-    searchQuery: '',
     selectedCategory: null,
     selectedCategoryName: null,
     sortOption: 'none',
@@ -224,9 +222,7 @@ const productsSlice = createSlice({
         error: null,
       };
     },
-    setSearchQuery: (state, action) => {
-      state.products.searchQuery = action.payload;
-    },
+
     setSelectedCategory: (state, action) => {
       const categoryData = action.payload; // Can be {slug: string, name: string} or null
       if (categoryData) {
@@ -248,7 +244,6 @@ const productsSlice = createSlice({
       );
     },
     clearFilters: state => {
-      state.products.searchQuery = '';
       state.products.selectedCategory = null;
       state.products.selectedCategoryName = null;
       state.products.sortOption = 'none';
@@ -476,7 +471,6 @@ const productsSlice = createSlice({
 
 export const {
   clearProductDetail,
-  setSearchQuery,
   setSelectedCategory,
   setSortOption,
   clearFilters,

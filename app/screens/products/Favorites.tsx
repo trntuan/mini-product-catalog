@@ -1,50 +1,34 @@
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   FlatList,
   RefreshControl,
   StyleSheet,
   View
 } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import Layout from '../../components/Layout';
 import NotFound from '../../components/NotFound';
 import ProductItem from '../../components/ProductItem';
-import { useTheme } from '../../theme/useTheme';
+import { useFavoriteProducts } from '../../hooks';
+import { useTheme } from '../../hooks/useTheme';
+import { ROUTE_NAMES, ROUTE_PARAMS } from '../../types/constants';
+import { CONTENT_KEYS } from '../../types/content';
+import type { FavoritesNavigationProp } from '../../types/navigation';
 
 import { Product } from '../../store/productsSlice';
-import { RootState } from '../../store/store';
-
-type FavoritesStackParamList = {
-  FavoritesList: undefined;
-  ProductDetail: {productId: number};
-};
-
-type FavoritesNavigationProp = NativeStackNavigationProp<FavoritesStackParamList>;
 
 export default function Favorites() {
   const {theme} = useTheme();
   const navigation = useNavigation<FavoritesNavigationProp>();
 
-  const favoriteIds = useSelector(
-    (state: RootState) => state.favorites.favoriteIds,
-  );
-  const allProducts = useSelector(
-    (state: RootState) => state.products.products.products || [],
-  );
-
-  // Get favorite products by matching IDs
-  const favoriteProducts = useMemo(() => {
-    return allProducts.filter((product: Product) =>
-      favoriteIds.includes(product.id),
-    );
-  }, [allProducts, favoriteIds]);
+  const {favoriteProducts} = useFavoriteProducts();
 
   const handleProductPress = useCallback(
     (productId: number) => {
-      navigation.navigate('ProductDetail', {productId});
+      navigation.navigate(ROUTE_NAMES.PRODUCT_DETAIL, {
+        [ROUTE_PARAMS.PRODUCT_ID]: productId,
+      });
     },
     [navigation],
   );
@@ -59,8 +43,8 @@ export default function Favorites() {
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <NotFound 
-        title="No Favorites"
-        message="You haven't favorited any products yet. Start exploring and add some favorites!"
+        title={CONTENT_KEYS.FAVORITES.TITLES.NO_FAVORITES}
+        message={CONTENT_KEYS.FAVORITES.MESSAGES.NO_FAVORITES_MESSAGE}
       />
     </View>
   );

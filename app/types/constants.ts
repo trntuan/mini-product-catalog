@@ -41,6 +41,29 @@ export const CACHE_CONFIG = {
 export type CacheConfig = typeof CACHE_CONFIG;
 
 // ============================================================================
+// Navigation Route Names
+// ============================================================================
+
+export const ROUTE_NAMES = {
+  PRODUCT_DETAIL: 'ProductDetail',
+  PRODUCTS_LIST: 'ProductsList',
+  FAVORITES_LIST: 'FavoritesList',
+  LOGIN: 'Login',
+} as const;
+
+export type RouteName = typeof ROUTE_NAMES[keyof typeof ROUTE_NAMES];
+
+// ============================================================================
+// Navigation Route Parameters
+// ============================================================================
+
+export const ROUTE_PARAMS = {
+  PRODUCT_ID: 'productId',
+} as const;
+
+export type RouteParam = typeof ROUTE_PARAMS[keyof typeof ROUTE_PARAMS];
+
+// ============================================================================
 // App Constants
 // ============================================================================
 
@@ -80,6 +103,8 @@ export const CONSTANTS = {
   STORAGE_KEYS,
   KEYCHAIN_KEYS,
   CACHE_CONFIG,
+  ROUTE_NAMES,
+  ROUTE_PARAMS,
   APP_CONSTANTS,
 } as const;
 

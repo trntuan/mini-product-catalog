@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../hooks/useTheme';
+import { CONTENT_KEYS } from '../types/content';
 import Text from './Text';
 
 interface OfflineBannerProps {
@@ -8,7 +9,7 @@ interface OfflineBannerProps {
 }
 
 export default function OfflineBanner({
-  message = "You're viewing offline data",
+  message = CONTENT_KEYS.MESSAGES.VIEWING_OFFLINE_DATA,
 }: OfflineBannerProps) {
   const {theme} = useTheme();
 

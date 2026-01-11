@@ -1,7 +1,6 @@
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useCallback } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -13,7 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Button } from '../../components/Button/Button';
 import Layout from '../../components/Layout';
@@ -21,180 +19,59 @@ import NotFound from '../../components/NotFound';
 import OfflineBanner from '../../components/OfflineBanner';
 import ProductItem from '../../components/ProductItem';
 import Text from '../../components/Text';
-import { useTheme } from '../../theme/useTheme';
-import { useDebounce } from '../../utils/useDebounce';
+import { useProducts } from '../../hooks';
+import { useTheme } from '../../hooks/useTheme';
+import { ROUTE_NAMES, ROUTE_PARAMS } from '../../types/constants';
+import { CONTENT_KEYS } from '../../types/content';
+import type { ProductsNavigationProp } from '../../types/navigation';
 
-import {
-  clearFilters,
-  fetchCategories,
-  fetchProducts,
-  fetchProductsByCategory,
-  loadCachedProducts,
-  Product,
-  searchProducts,
-  setSearchQuery,
-  setSelectedCategory,
-  setSortOption,
-} from '../../store/productsSlice';
-import { AppDispatch, RootState } from '../../store/store';
-
-type ProductsStackParamList = {
-  ProductsList: undefined;
-  ProductDetail: {productId: number};
-};
-
-type ProductsNavigationProp = NativeStackNavigationProp<ProductsStackParamList>;
+import { Product } from '../../store/productsSlice';
 
 // Helper function to get category display name
 const getCategoryDisplayName = (categoryName: string | null): string => {
-  if (!categoryName) return 'Category';
+  if (!categoryName) return CONTENT_KEYS.LABELS.CATEGORY;
   return categoryName;
 };
 
 export default function Products() {
   const {theme} = useTheme();
-  const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<ProductsNavigationProp>();
 
-  const productsState = useSelector((state: RootState) => state.products.products);
   const {
-    products = [],
-    filteredProducts = [],
-    hasMore = false,
-    loadingMore = false,
-    error = null,
-    searchQuery = '',
-    selectedCategory = null,
-    selectedCategoryName = null,
-    sortOption = 'none',
-    categories = [],
-    categoriesLoading = false,
-    isOffline = false,
-  } = productsState || {};
-  const status = useSelector(
-    (state: RootState) => state.products.products?.status || 'idle',
-  );
-
-  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showSortModal, setShowSortModal] = useState(false);
-
-  const debouncedSearchQuery = useDebounce(localSearchQuery, 400);
-
-  // Load cached products on mount, then fetch fresh data
-  useEffect(() => {
-    if (status === 'idle') {
-      // First, try to load cached data for immediate display
-      dispatch(loadCachedProducts())
-        .then(() => {
-          // Then fetch fresh data in the background
-          dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-        })
-        .catch(() => {
-          // If no cache available, just fetch fresh data
-          dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-        });
-    }
-    if ((!categories || categories.length === 0) && !categoriesLoading) {
-      dispatch(fetchCategories());
-    }
-  }, [dispatch, status, categories, categoriesLoading]);
-
-  // Handle search with debounce
-  useEffect(() => {
-    const trimmedQuery = debouncedSearchQuery.trim();
-    dispatch(setSearchQuery(trimmedQuery));
-    
-    if (trimmedQuery.length > 0) {
-      dispatch(searchProducts(trimmedQuery));
-    } else {
-      // If search is cleared and we were searching, reload original products
-      if (searchQuery && searchQuery.length > 0) {
-        dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchQuery, dispatch]);
-
-  const handleRefresh = useCallback(() => {
-    // Reset pagination and errors, reload products
-    dispatch(fetchProducts({ limit: 10, skip: 0, append: false }));
-  }, [dispatch]);
-
-  const handleRetryLoadMore = useCallback(() => {
-    // Retry loading more products after pagination error
-    if (!loadingMore && hasMore && products) {
-      const nextSkip = products.length || 0;
-      dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
-    }
-  }, [dispatch, loadingMore, hasMore, products]);
-
-  const handleLoadMore = useCallback(() => {
-    // Don't load more if we're searching (search results don't support pagination)
-    if (
-      !loadingMore &&
-      hasMore &&
-      status === 'success' &&
-      !error &&
-      (!searchQuery || searchQuery.length === 0) &&
-      products
-    ) {
-      const nextSkip = products.length || 0;
-      // If a category is selected, load more products from that category
-      if (selectedCategory) {
-        dispatch(fetchProductsByCategory({
-          category: selectedCategory,
-          limit: 10,
-          skip: nextSkip,
-          append: true
-        }));
-      } else {
-        dispatch(fetchProducts({limit: 10, skip: nextSkip, append: true}));
-      }
-    }
-  }, [dispatch, loadingMore, hasMore, status, error, products, searchQuery, selectedCategory]);
-
-  const handleRetry = useCallback(() => {
-    dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-  }, [dispatch]);
+    displayProducts,
+    categories,
+    status,
+    error,
+    hasMore,
+    loadingMore,
+    localSearchQuery,
+    selectedCategory,
+    selectedCategoryName,
+    sortOption,
+    isOffline,
+    hasActiveFilters,
+    showCategoryModal,
+    showSortModal,
+    setLocalSearchQuery,
+    setShowCategoryModal,
+    setShowSortModal,
+    handleRefresh,
+    handleRetryLoadMore,
+    handleLoadMore,
+    handleRetry,
+    handleCategorySelect,
+    handleSortSelect,
+    handleClearFilters,
+  } = useProducts();
 
   const handleProductPress = useCallback(
     (productId: number) => {
-      navigation.navigate('ProductDetail', {productId});
+      navigation.navigate(ROUTE_NAMES.PRODUCT_DETAIL, {
+        [ROUTE_PARAMS.PRODUCT_ID]: productId,
+      });
     },
     [navigation],
   );
-
-  const handleCategorySelect = useCallback(
-    (category: {slug: string; name: string} | null) => {
-      dispatch(setSelectedCategory(category));
-      setShowCategoryModal(false);
-      
-      // Fetch products by category when a category is selected
-      if (category) {
-        dispatch(fetchProductsByCategory({category: category.slug, limit: 10, skip: 0, append: false}));
-      } else {
-        // If "All Categories" is selected, fetch all products
-        dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-      }
-    },
-    [dispatch],
-  );
-
-  const handleSortSelect = useCallback(
-    (sort: 'none' | 'price-asc' | 'price-desc' | 'rating-desc') => {
-      dispatch(setSortOption(sort));
-      setShowSortModal(false);
-    },
-    [dispatch],
-  );
-
-  const handleClearFilters = useCallback(() => {
-    setLocalSearchQuery('');
-    dispatch(clearFilters());
-    // Reload all products when filters are cleared
-    dispatch(fetchProducts({limit: 10, skip: 0, append: false}));
-  }, [dispatch]);
 
   const renderProduct = useCallback(
     ({item}: {item: Product}) => (
@@ -207,7 +84,7 @@ export default function Products() {
     <View style={styles.centerContainer}>
       <ActivityIndicator size="large" color={theme.primary} />
       <Text style={[styles.loadingText, {color: theme.color}]}>
-        Loading products...
+        {CONTENT_KEYS.PRODUCTS.MESSAGES.LOADING_PRODUCTS}
       </Text>
     </View>
   );
@@ -215,45 +92,33 @@ export default function Products() {
   const renderError = () => (
     <View style={styles.centerContainer}>
       <Text variant="titleLarge" style={[styles.errorTitle, {color: theme.error}]}>
-        Unable to Load Products
+        {CONTENT_KEYS.PRODUCTS.TITLES.UNABLE_TO_LOAD}
       </Text>
       <Text
         variant="bodyMedium"
         style={[styles.errorMessage, {color: theme.color}]}>
-        {error || 'Failed to load products. Please check your connection and try again.'}
+        {error || CONTENT_KEYS.PRODUCTS.MESSAGES.FAILED_TO_LOAD}
       </Text>
-      <Button onPress={handleRetry} text="Retry" style={styles.retryButton} />
+      <Button onPress={handleRetry} text={CONTENT_KEYS.BUTTONS.RETRY} style={styles.retryButton} />
     </View>
   );
 
   const renderEmpty = () => (
     <NotFound
-      title="No Products"
-      message="There are no products available at the moment"
+      title={CONTENT_KEYS.PRODUCTS.TITLES.NO_PRODUCTS}
+      message={CONTENT_KEYS.PRODUCTS.MESSAGES.NO_PRODUCTS_AVAILABLE}
     />
   );
 
   // Show loading screen only on initial load when no products exist
-  if (status === 'loading' && (!products || products.length === 0)) {
+  if (status === 'loading' && (!displayProducts || displayProducts.length === 0)) {
     return <Layout>{renderLoading()}</Layout>;
   }
 
   // Show error screen only on initial load failure when no products exist
-  if (status === 'failed' && (!products || products.length === 0)) {
+  if (status === 'failed' && (!displayProducts || displayProducts.length === 0)) {
     return <Layout>{renderError()}</Layout>;
   }
-
-  const hasActiveFilters =
-    (searchQuery && searchQuery.length > 0) ||
-    selectedCategory !== null ||
-    sortOption !== 'none';
-
-  // Use filteredProducts when available (after filters/sort/search are applied)
-  // Otherwise fall back to products (initial load or when no filters)
-  const displayProducts =
-    (filteredProducts && filteredProducts.length > 0) || hasActiveFilters
-      ? filteredProducts || []
-      : products || [];
 
   // Show empty state only when successfully loaded but no products to display
   if (
@@ -267,14 +132,14 @@ export default function Products() {
         {hasActiveFilters ? (
           <View style={styles.centerContainer}>
             <Text variant="titleLarge" style={[styles.errorTitle, {color: theme.color}]}>
-              No Results Found
+              {CONTENT_KEYS.PRODUCTS.TITLES.NO_RESULTS_FOUND}
             </Text>
             <Text
               variant="bodyMedium"
               style={[styles.errorMessage, {color: theme.color}]}>
-              Try adjusting your search, filter, or sort options
+              {CONTENT_KEYS.PRODUCTS.MESSAGES.NO_RESULTS_MESSAGE}
             </Text>
-            <Button onPress={handleClearFilters} text="Clear Filters" style={styles.retryButton} />
+            <Button onPress={handleClearFilters} text={CONTENT_KEYS.BUTTONS.CLEAR_FILTERS} style={styles.retryButton} />
           </View>
         ) : (
           renderEmpty()
@@ -301,7 +166,7 @@ export default function Products() {
                   color: theme.color,
                 },
               ]}
-              placeholder="Search products..."
+              placeholder={CONTENT_KEYS.PRODUCTS.PLACEHOLDERS.SEARCH_PRODUCTS}
               placeholderTextColor={theme.color + '80'}
               value={localSearchQuery}
               onChangeText={setLocalSearchQuery}
@@ -362,12 +227,12 @@ export default function Products() {
                 },
               ]}>
               {sortOption === 'none'
-                ? 'Sort'
+                ? CONTENT_KEYS.LABELS.SORT
                 : sortOption === 'price-asc'
-                ? 'Price ↑'
+                ? CONTENT_KEYS.PRODUCTS.LABELS.SORT_PRICE_ASC
                 : sortOption === 'price-desc'
-                ? 'Price ↓'
-                : 'Rating ↓'}
+                ? CONTENT_KEYS.PRODUCTS.LABELS.SORT_PRICE_DESC
+                : CONTENT_KEYS.PRODUCTS.LABELS.SORT_RATING_DESC}
             </Text>
           </TouchableOpacity>
 
@@ -376,7 +241,7 @@ export default function Products() {
               style={[styles.clearButton, {borderColor: theme.error}]}
               onPress={handleClearFilters}>
               <Text style={[styles.clearButtonText, {color: theme.error}]}>
-                Clear
+                {CONTENT_KEYS.BUTTONS.CLEAR}
               </Text>
             </TouchableOpacity>
           )}
@@ -407,10 +272,10 @@ export default function Products() {
               <Text
                 variant="bodySmall"
                 style={[styles.loadingMoreText, {color: theme.color}]}>
-                Loading more products...
+                {CONTENT_KEYS.MESSAGES.LOADING_MORE}
               </Text>
             </View>
-          ) : error && products && products.length > 0 && !loadingMore ? (
+          ) : error && displayProducts && displayProducts.length > 0 && !loadingMore ? (
             <View style={styles.footerLoader}>
               <Text
                 variant="bodySmall"
@@ -419,16 +284,16 @@ export default function Products() {
               </Text>
               <Button
                 onPress={handleRetryLoadMore}
-                text="Retry"
+                text={CONTENT_KEYS.BUTTONS.RETRY}
                 style={styles.retryMoreButton}
               />
             </View>
-          ) : !hasMore && products && products.length > 0 ? (
+          ) : !hasMore && displayProducts && displayProducts.length > 0 ? (
             <View style={styles.footerLoader}>
               <Text
                 variant="bodySmall"
                 style={[styles.endOfListText, {color: theme.color}]}>
-                No more products to load
+                {CONTENT_KEYS.MESSAGES.NO_MORE_PRODUCTS}
               </Text>
             </View>
           ) : null
@@ -454,10 +319,10 @@ export default function Products() {
           <View style={[styles.modalContent, {backgroundColor: theme.cardBg}]}>
             <View style={styles.modalHeader}>
               <Text variant="titleLarge" style={{color: theme.color}}>
-                Select Category
+                {CONTENT_KEYS.PRODUCTS.TITLES.SELECT_CATEGORY}
               </Text>
               <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
-                <Text style={{color: theme.primary, fontSize: 16}}>Close</Text>
+                <Text style={{color: theme.primary, fontSize: 16}}>{CONTENT_KEYS.BUTTONS.CLOSE}</Text>
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScrollView}>
@@ -482,7 +347,7 @@ export default function Products() {
                         selectedCategory === null ? '600' : '400',
                     },
                   ]}>
-                  All Categories
+                  {CONTENT_KEYS.PRODUCTS.LABELS.ALL_CATEGORIES}
                 </Text>
               </TouchableOpacity>
               {categories &&
@@ -536,18 +401,18 @@ export default function Products() {
           <View style={[styles.modalContent, {backgroundColor: theme.cardBg}]}>
             <View style={styles.modalHeader}>
               <Text variant="titleLarge" style={{color: theme.color}}>
-                Sort By
+                {CONTENT_KEYS.PRODUCTS.TITLES.SORT_BY}
               </Text>
               <TouchableOpacity onPress={() => setShowSortModal(false)}>
-                <Text style={{color: theme.primary, fontSize: 16}}>Close</Text>
+                <Text style={{color: theme.primary, fontSize: 16}}>{CONTENT_KEYS.BUTTONS.CLOSE}</Text>
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScrollView}>
               {[
-                {value: 'none', label: 'None'},
-                {value: 'price-asc', label: 'Price: Low to High'},
-                {value: 'price-desc', label: 'Price: High to Low'},
-                {value: 'rating-desc', label: 'Rating: High to Low'},
+                {value: 'none', label: CONTENT_KEYS.PRODUCTS.LABELS.SORT_NONE},
+                {value: 'price-asc', label: CONTENT_KEYS.PRODUCTS.LABELS.SORT_PRICE_LOW_TO_HIGH},
+                {value: 'price-desc', label: CONTENT_KEYS.PRODUCTS.LABELS.SORT_PRICE_HIGH_TO_LOW},
+                {value: 'rating-desc', label: CONTENT_KEYS.PRODUCTS.LABELS.SORT_RATING_HIGH_TO_LOW},
               ].map(option => (
                 <TouchableOpacity
                   key={option.value}

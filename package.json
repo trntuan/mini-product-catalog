@@ -3,7 +3,8 @@
   "main": "index.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
+    "start:go": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -11,11 +12,16 @@
     "lint": "expo lint",
     "prebuild:clean": "expo prebuild --clean",
     "rebuild:android": "expo prebuild --clean --platform android && expo run:android",
-    "rebuild:ios": "expo prebuild --clean --platform ios && expo run:ios"
+    "rebuild:ios": "expo prebuild --clean --platform ios && expo run:ios",
+    "get-sha1": "node ./scripts/get-sha1.js",
+    "eas-build-pre-install": "node scripts/write-google-services.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-native-firebase/app": "^23.7.0",
+    "@react-native-firebase/auth": "^23.7.0",
+    "@react-native-google-signin/google-signin": "^16.1.1",
     "@react-native-vector-icons/ionicons": "^12.3.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
@@ -23,7 +29,11 @@
     "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.13.2",
     "expo": "~54.0.31",
+    "expo-auth-session": "^7.0.10",
+    "expo-build-properties": "^1.0.10",
     "expo-constants": "~18.0.13",
+    "expo-crypto": "^15.0.8",
+    "expo-dev-client": "^6.0.20",
     "expo-font": "~14.0.10",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
@@ -55,6 +65,7 @@
   "devDependencies": {
     "@react-native-community/cli": "latest",
     "@types/react": "~19.1.0",
+    "dotenv": "^17.2.3",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"

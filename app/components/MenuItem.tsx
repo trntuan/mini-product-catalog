@@ -1,7 +1,7 @@
 import * as React from 'react';
-import {View, Pressable, StyleSheet} from 'react-native';
-import {useTheme} from '../theme/useTheme';
-import {MenuItemPropsType} from '../types/components';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useTheme } from '../hooks/useTheme';
+import { MenuItemPropsType } from '../types/components';
 
 import Text from './Text';
 

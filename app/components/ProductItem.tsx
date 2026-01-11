@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { useTheme } from '../hooks/useTheme';
 import { Product } from '../store/productsSlice';
-import { useTheme } from '../theme/useTheme';
 import Card from './Card';
 import Text from './Text';
 

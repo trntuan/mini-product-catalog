@@ -5,7 +5,6 @@
  */
 import React, { useEffect } from 'react';
 import { ColorValue, Platform, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -16,8 +15,8 @@ import { useDispatch, useSelector } from 'react-redux';
 // import {useSelector, useDispatch} from 'react-redux';
 
 // Hook for theme change (Light/Dark Mode)
+import { useTheme } from '../hooks/useTheme';
 import { themeType, typeVariants } from '../theme/theme';
-import { useTheme } from '../theme/useTheme';
 // Get Value from Keyring (Encrypted token)
 import { getSecureValue } from '../utils/keyChain';
 // Redux slice for updating Access Token to store
@@ -130,7 +129,7 @@ export default function RootNavigation() {
   const { theme } = useTheme();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
-  const insets = useSafeAreaInsets();
+
 
   // Copy existing token from local storage to redux store
   useEffect(() => {

@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { authService } from '../../services';
 import { RootState } from '../../store/store';
-import { clearUser } from '../../store/userSlice';
+import { clearUser, updateUser } from '../../store/userSlice';
 import { KEYCHAIN_KEYS } from '../../types/constants';
-import { removeSecureValue } from '../../utils/keyChain';
+import { getSecureValue, removeSecureValue } from '../../utils/keyChain';
 
 import Card from '../../components/Card';
 import Layout from '../../components/Layout';
 import MenuItem from '../../components/MenuItem';
 import Text from '../../components/Text';
-import { useTheme } from '../../theme/useTheme';
+import { useTheme } from '../../hooks/useTheme';
+import { CONTENT_KEYS } from '../../types/content';
 
 const avatar = require('@/assets/images/avatar.png');
 
@@ -19,6 +21,50 @@ const Settings = () => {
   const {theme} = useTheme();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
+  const [isLoadingUser, setIsLoadingUser] = useState(false);
+
+  // Load user data if missing but token exists
+  useEffect(() => {
+    const loadUserData = async () => {
+      // If user data is already present, skip
+      if (user.name || user.username) {
+        return;
+      }
+
+      try {
+        setIsLoadingUser(true);
+        const token = await getSecureValue(KEYCHAIN_KEYS.TOKEN);
+        
+        if (token) {
+          // Try to get user info from API
+          try {
+            const userInfo = await authService.getCurrentUser();
+            
+            if (userInfo) {
+              const { firstName, lastName, username, email } = userInfo;
+              const name = [firstName, lastName].filter(Boolean).join(' ') || username || email || '';
+              
+              dispatch(updateUser({
+                name,
+                username: username || email || '',
+                token: token,
+              }));
+            }
+          } catch (error) {
+            // API might not support /auth/me endpoint, or token is invalid
+            // In that case, user will need to login again
+            console.log('Could not fetch user data:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+
+    loadUserData();
+  }, [dispatch, user.name, user.username]);
 
   const handleLogout = () => {
     // Remove both access token and refresh token from Local
@@ -37,17 +83,17 @@ const Settings = () => {
             <Image source={avatar} style={styles.avatar} />
             <View style={styles.userInfo}>
               <Text variant="titleLarge" style={{color: theme.color, marginBottom: 4}}>
-                {user.name || 'User'}
+                {user.name || CONTENT_KEYS.LABELS.USER}
               </Text>
               <Text variant="bodyMedium" style={{color: theme.color, opacity: 0.7}}>
-                {user.username ? `@${user.username}` : 'No username'}
+                {user.username ? `@${user.username}` : CONTENT_KEYS.LABELS.NO_USERNAME}
               </Text>
             </View>
           </View>
           <View style={styles.divider} />
           <View style={styles.menuSection}>
             <MenuItem 
-              label="Logout" 
+              label={CONTENT_KEYS.BUTTONS.LOGOUT} 
               onPress={handleLogout}
             />
           </View>

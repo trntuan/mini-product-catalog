@@ -17,7 +17,8 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: STORAGE_KEYS.REDUX_ROOT,
   storage: reduxStorage,
-  blacklist: ['user'],
+  // User data is now persisted so it survives app restarts
+  // Token is stored separately in Keychain for security
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
