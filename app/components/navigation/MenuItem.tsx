@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
-import { MenuItemPropsType } from '../types/components';
+import { useTheme } from '../../hooks/useTheme';
+import { MenuItemPropsType } from '../../types/components';
 
-import Text from './Text';
+import Text from '../ui/Text';
 
 const MenuItem = ({
   label = 'Menu Item',
@@ -36,11 +36,12 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    minHeight: 48,
+    minHeight: 52,
     alignItems: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#ccc',
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
   },
   pressedItem: {
     opacity: 0.6,

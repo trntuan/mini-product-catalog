@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback } from 'react';
+import React, { useCallback, useLayoutEffect } from 'react';
 import {
   FlatList,
   RefreshControl,
@@ -7,9 +7,10 @@ import {
   View
 } from 'react-native';
 
-import Layout from '../../components/Layout';
-import NotFound from '../../components/NotFound';
-import ProductItem from '../../components/ProductItem';
+import Layout from '../../components/ui/Layout';
+import NotFound from '../../components/feedback/NotFound';
+import ProductItem from '../../components/products/ProductItem';
+import Text from '../../components/ui/Text';
 import { useFavoriteProducts } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
 import { ROUTE_NAMES, ROUTE_PARAMS } from '../../types/constants';
@@ -35,10 +36,27 @@ export default function Favorites() {
 
   const renderProduct = useCallback(
     ({item}: {item: Product}) => (
-      <ProductItem product={item} onPress={handleProductPress} />
+      <ProductItem product={item} onPress={handleProductPress} layout="list" />
     ),
     [handleProductPress],
   );
+
+  const favoritesCountText = `${favoriteProducts.length} saved`;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={styles.headerTitle}>
+          <Text variant="titleLarge" style={{color: theme.color}}>
+            Favorites
+          </Text>
+          <Text variant="bodySmall" style={{color: theme.textMuted}}>
+            {favoritesCountText}
+          </Text>
+        </View>
+      ),
+    });
+  }, [favoritesCountText, navigation, theme.color, theme.textMuted]);
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -62,12 +80,14 @@ export default function Favorites() {
   return (
     <Layout>
       <FlatList
+        key="favorites-list"
         data={favoriteProducts}
         renderItem={renderProduct}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
         style={styles.list}
         ListEmptyComponent={renderEmpty}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         refreshControl={
           <RefreshControl
             refreshing={false}
@@ -79,11 +99,6 @@ export default function Favorites() {
         maxToRenderPerBatch={10}
         windowSize={10}
         initialNumToRender={10}
-        getItemLayout={(data, index) => ({
-          length: 124, // Approximate item height (100 thumbnail + 24 padding)
-          offset: 124 * index,
-          index,
-        })}
       />
     </Layout>
   );
@@ -109,7 +124,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  headerTitle: {
+    gap: 2,
+  },
+  separator: {
+    height: 10,
   },
 });

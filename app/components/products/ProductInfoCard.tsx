@@ -6,9 +6,9 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { useTheme } from '../hooks/useTheme';
-import { CONTENT_KEYS, getStockStatusText } from '../types/content';
-import Card from './Card';
+import { useTheme } from '../../hooks/useTheme';
+import { CONTENT_KEYS, getStockStatusText } from '../../types/content';
+import Card from '../ui/Card';
 import ProductInfoRow from './ProductInfoRow';
 
 interface ProductInfoCardProps {

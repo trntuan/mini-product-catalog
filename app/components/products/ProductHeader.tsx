@@ -6,9 +6,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import Card from './Card';
-import Text from './Text';
-import { useTheme } from '../hooks/useTheme';
+import Card from '../ui/Card';
+import Text from '../ui/Text';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ProductHeaderProps {
   title: string;
@@ -31,13 +31,15 @@ export default function ProductHeader({
         {title}
       </Text>
       <View style={styles.priceRow}>
-        <Text variant="titleLarge" style={[styles.price, {color: theme.primary}]}>
-          ${price.toFixed(2)}
-        </Text>
+        <View style={[styles.pricePill, {backgroundColor: theme.primarySoft}]}>
+          <Text variant="titleLarge" style={[styles.price, {color: theme.primary}]}>
+            ${price.toFixed(2)}
+          </Text>
+        </View>
       </View>
       <View style={styles.ratingContainer}>
         <View style={styles.stars}>{renderStars(rating)}</View>
-        <Text variant="bodyMedium" style={styles.ratingText}>
+        <Text variant="bodyMedium" style={[styles.ratingText, {color: theme.textMuted}]}>
           {rating.toFixed(1)}
         </Text>
       </View>
@@ -57,6 +59,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     gap: 12,
+  },
+  pricePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
   price: {
     fontWeight: 'bold',

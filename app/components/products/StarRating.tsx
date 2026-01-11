@@ -4,8 +4,10 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
 
 export function useStarRating() {
+  const {theme} = useTheme();
   const renderStars = (rating: number) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -18,7 +20,7 @@ export function useStarRating() {
             key={i}
             name="star"
             size={18}
-            color="#FFD700"
+            color={theme.primary}
             style={styles.star}
           />,
         );
@@ -28,7 +30,7 @@ export function useStarRating() {
             key={i}
             name="star-half"
             size={18}
-            color="#FFD700"
+            color={theme.primary}
             style={styles.star}
           />,
         );
@@ -38,7 +40,7 @@ export function useStarRating() {
             key={i}
             name="star-outline"
             size={18}
-            color="#CCCCCC"
+            color={theme.cardBorderColor}
             style={styles.star}
           />,
         );

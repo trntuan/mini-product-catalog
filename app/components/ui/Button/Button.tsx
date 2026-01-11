@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
 
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../../hooks/useTheme';
 
 export type ButtonProps = {
   onPress: () => void;
@@ -16,7 +16,11 @@ export const Button = ({onPress, text, children, style}: ButtonProps) => {
     <Pressable
       style={({pressed}) => [
         styles.container,
-        {backgroundColor: pressed ? `${theme.primary}ee` : theme.primary},
+        {
+          backgroundColor: pressed ? `${theme.primary}e6` : theme.primary,
+          shadowColor: theme.primary,
+        },
+        pressed && styles.pressed,
         style,
       ]}
       onPress={onPress}>
@@ -30,10 +34,23 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 44,
+    ...Platform.select({
+      ios: {
+        shadowOffset: {width: 0, height: 6},
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  pressed: {
+    transform: [{scale: 0.99}],
   },
   text: {
     color: 'white',

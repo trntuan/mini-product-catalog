@@ -19,15 +19,18 @@ export interface themeType {
   name: string;
   color: string;
   primary: string;
+  primarySoft: string;
   layoutBg: string;
   cardBg: string;
   cardBorderColor: string;
   accent: string;
+  accentSoft: string;
+  textMuted: string;
   error: string;
 }
 
 
-// Spacing:- Common margins and paddings (Amazon-style)
+// Spacing:- Common margins and paddings (inspired style)
 const spacing: spacingType = {
   borderRadius: 8,
   layoutPaddingH: 16,
@@ -35,7 +38,7 @@ const spacing: spacingType = {
   cardMarginB: 12,
 };
 
-// Type Sizes:- Font sizes and weights (Amazon-style)
+  // Type Sizes:- Font sizes and weights (inspired style)
 const typeSizes: typeSizesType = {
   FONT_SIZE_LARGE: 18,
   FONT_SIZE_MEDIUM: 14,
@@ -64,16 +67,20 @@ const typeVariants = {
   },
 };
 
-// Theme:- Amazon-inspired color palette
+// Theme:- inspired color palette
 const theme: themeType = {
   name: 'light',
-  color: '#131921', // Amazon dark text
-  primary: '#FF9900', // Amazon orange
-  layoutBg: '#F5F5F5', // Light gray background
+  color: '#131921', // text
+  primary: '#FF9900', //  orange
+  primarySoft: '#FFF2D9', // Soft orange wash
+  layoutBg: '#F6F3ED', // light background
   cardBg: '#FFFFFF',
-  cardBorderColor: '#E0E0E0', // Subtle border
-  accent: '#007185', // Amazon blue accent
-  error: '#C40000', // Amazon red
+  cardBorderColor: '#E6E0D6', // border
+  accent: '#007185', //  blue accent
+  accentSoft: '#E3F2F4', // Soft blue wash
+  textMuted: '#5C6772',
+  error: '#C40000', // red
 };
 
-export {spacing, typeSizes, typeVariants, theme};
+export { spacing, theme, typeSizes, typeVariants };
+

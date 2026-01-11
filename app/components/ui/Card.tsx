@@ -1,8 +1,8 @@
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
-import { spacing } from '../theme/theme';
-import { CardPropsType } from '../types/components';
+import { useTheme } from '../../hooks/useTheme';
+import { spacing } from '../../theme/theme';
+import { CardPropsType } from '../../types/components';
 
 const Card = ({children, style}: CardPropsType) => {
   const {theme} = useTheme();
@@ -32,12 +32,12 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 1},
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
+        shadowOffset: {width: 0, height: 6},
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
       },
       android: {
-        elevation: 1,
+        elevation: 2,
       },
     }),
   },

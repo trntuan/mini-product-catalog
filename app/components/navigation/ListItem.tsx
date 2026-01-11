@@ -1,9 +1,9 @@
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import * as React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { ThemeContextInterface, useTheme } from '../hooks/useTheme';
-import Card from './Card';
-import Text from './Text';
+import { ThemeContextInterface, useTheme } from '../../hooks/useTheme';
+import Card from '../ui/Card';
+import Text from '../ui/Text';
 
 interface TaskItemType {
   id: string;
@@ -45,7 +45,7 @@ const ListItem = ({item, onPress}: ListItemType): React.JSX.Element => {
         <Ionicons
           name="checkbox"
           size={20}
-          color={item.done ? theme.primary : '#CECECE'}
+          color={item.done ? theme.primary : theme.cardBorderColor}
         />
       </Pressable>
     </Card>

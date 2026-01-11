@@ -6,18 +6,20 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import Card from './Card';
-import Text from './Text';
-import { CONTENT_KEYS } from '../types/content';
+import Card from '../ui/Card';
+import Text from '../ui/Text';
+import { CONTENT_KEYS } from '../../types/content';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ProductDescriptionProps {
   description: string;
 }
 
 export default function ProductDescription({description}: ProductDescriptionProps) {
+  const {theme} = useTheme();
   return (
     <Card style={styles.card}>
-      <Text variant="titleSmall" style={styles.sectionTitle}>
+      <Text variant="titleSmall" style={[styles.sectionTitle, {color: theme.textMuted}]}>
         {CONTENT_KEYS.LABELS.DESCRIPTION}
       </Text>
       <Text variant="bodyMedium" style={styles.description}>

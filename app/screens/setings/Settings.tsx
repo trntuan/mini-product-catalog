@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { authService } from '../../services';
@@ -8,10 +9,9 @@ import { clearUser, updateUser } from '../../store/userSlice';
 import { KEYCHAIN_KEYS } from '../../types/constants';
 import { getSecureValue, removeSecureValue } from '../../utils/keyChain';
 
-import Card from '../../components/Card';
-import Layout from '../../components/Layout';
-import MenuItem from '../../components/MenuItem';
-import Text from '../../components/Text';
+import Card from '../../components/ui/Card';
+import Layout from '../../components/ui/Layout';
+import Text from '../../components/ui/Text';
 import { useTheme } from '../../hooks/useTheme';
 import { CONTENT_KEYS } from '../../types/content';
 
@@ -77,10 +77,14 @@ const Settings = () => {
   return (
     <Layout>
       <ScrollView
-        style={[styles.contentContainer, {backgroundColor: theme.layoutBg}]}>
-        <Card style={[styles.card, {backgroundColor: theme.cardBg}]}>
+        contentContainerStyle={styles.contentContainer}
+        style={{backgroundColor: theme.layoutBg}}>
+        <Card style={[styles.card, {backgroundColor: theme.cardBg, borderColor: theme.cardBorderColor}]}>
           <View style={styles.avatarRow}>
-            <Image source={avatar} style={styles.avatar} />
+            <Image
+              source={avatar}
+              style={[styles.avatar, {borderColor: theme.cardBorderColor}]}
+            />
             <View style={styles.userInfo}>
               <Text variant="titleLarge" style={{color: theme.color, marginBottom: 4}}>
                 {user.name || CONTENT_KEYS.LABELS.USER}
@@ -90,12 +94,21 @@ const Settings = () => {
               </Text>
             </View>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, {backgroundColor: theme.cardBorderColor}]} />
           <View style={styles.menuSection}>
-            <MenuItem 
-              label={CONTENT_KEYS.BUTTONS.LOGOUT} 
+            <Pressable
               onPress={handleLogout}
-            />
+              style={({pressed}) => [
+                styles.logoutButton,
+                {
+                  backgroundColor: pressed ? `${theme.error}1A` : `${theme.error}12`,
+                },
+              ]}>
+              <Ionicons name="log-out-outline" size={18} color={theme.error} />
+              <Text style={[styles.logoutText, {color: theme.error}]}>
+                {CONTENT_KEYS.BUTTONS.LOGOUT}
+              </Text>
+            </Pressable>
           </View>
         </Card>
       </ScrollView>
@@ -139,5 +152,16 @@ const styles = StyleSheet.create({
   },
   menuSection: {
     paddingTop: 8,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  logoutText: {
+    fontWeight: '600',
   },
 });
