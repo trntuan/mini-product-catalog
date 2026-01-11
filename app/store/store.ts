@@ -3,7 +3,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 // Slices
 
-import { STORAGE_KEYS } from '../types/constants';
+import { STORAGE_KEYS } from '../../constants/app';
 import favoritesSlice from './favoritesSlice';
 import productsSlice from './productsSlice';
 import userSlice from './userSlice';

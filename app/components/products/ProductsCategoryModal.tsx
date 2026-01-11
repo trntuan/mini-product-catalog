@@ -2,7 +2,8 @@ import React from 'react';
 import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { colors } from '../../theme';
+import { CONTENT_KEYS } from '@/constants/content';
 import Text from '../ui/Text';
 
 interface CategoryOption {
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.borderLight,
   },
   scrollView: {
     paddingHorizontal: 20,

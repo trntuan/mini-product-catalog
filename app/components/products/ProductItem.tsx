@@ -3,7 +3,8 @@ import React from 'react';
 import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../../hooks/useTheme';
-import { Product } from '../../store/productsSlice';
+import { colors, radii } from '../../theme';
+import type { Product } from '../../types/products';
 import Card from '../ui/Card';
 import Text from '../ui/Text';
 
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
   cardShadow: {
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: {width: 0, height: 3},
         shadowOpacity: 0.06,
         shadowRadius: 6,
@@ -122,27 +123,27 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     overflow: 'hidden',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: colors.surfaceMuted,
   },
   imageGrid: {
     width: '100%',
     aspectRatio: 1,
-    borderRadius: 12,
+    borderRadius: radii.md,
   },
   imageList: {
     width: 110,
     height: 110,
-    borderRadius: 12,
+    borderRadius: radii.md,
   },
   thumbnail: {
     width: '100%',
     height: '100%',
   },
   thumbnailGrid: {
-    borderRadius: 12,
+    borderRadius: radii.md,
   },
   thumbnailList: {
-    borderRadius: 12,
+    borderRadius: radii.md,
   },
   content: {
     flex: 1,

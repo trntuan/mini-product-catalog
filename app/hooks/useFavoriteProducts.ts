@@ -5,7 +5,7 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { Product } from '../store/productsSlice';
+import type { Product } from '../types/products';
 import { RootState } from '../store/store';
 
 export function useFavoriteProducts() {

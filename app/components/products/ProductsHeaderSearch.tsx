@@ -3,7 +3,8 @@ import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { colors } from '../../theme';
+import { CONTENT_KEYS } from '@/constants/content';
 
 interface ProductsHeaderSearchProps {
   query: string;
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 12,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderWidth: 1,
     flex: 1,
     marginRight: 10,

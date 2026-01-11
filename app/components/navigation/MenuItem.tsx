@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
+import { colors } from '../../theme';
 import { MenuItemPropsType } from '../../types/components';
 
 import Text from '../ui/Text';
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
     minHeight: 52,
     alignItems: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#ccc',
+    borderTopColor: colors.borderMid,
     paddingVertical: 10,
     paddingHorizontal: 4,
   },

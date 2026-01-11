@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../hooks/useTheme';
+import { colors } from '../../theme';
 
 import { ThemeContextInterface } from '../../hooks/useTheme';
 import { LayoutPropsType } from '../../types/components';
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   layout: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     position: 'relative',
   },
   backgroundAccent: {

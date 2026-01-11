@@ -3,17 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { KEYCHAIN_KEYS } from '../../../constants/app';
 import { authService } from '../../services';
 import { RootState } from '../../store/store';
 import { clearUser, updateUser } from '../../store/userSlice';
-import { KEYCHAIN_KEYS } from '../../types/constants';
 import { getSecureValue, removeSecureValue } from '../../utils/keyChain';
 
+import { CONTENT_KEYS } from '@/constants/content';
 import Card from '../../components/ui/Card';
 import Layout from '../../components/ui/Layout';
 import Text from '../../components/ui/Text';
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { colors } from '../../theme';
 
 const avatar = require('@/assets/images/avatar.png');
 
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     marginRight: 16,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: colors.borderLight,
   },
   userInfo: {
     flex: 1,
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: colors.borderLight,
     marginVertical: 12,
   },
   menuSection: {

@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { colors } from '../../theme';
+import { CONTENT_KEYS } from '@/constants/content';
 import Text from '../ui/Text';
 
 interface OfflineBannerProps {
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bannerText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 14,
     fontWeight: '500',
   },

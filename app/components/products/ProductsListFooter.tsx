@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { CONTENT_KEYS } from '@/constants/content';
 import { Button } from '../ui/Button/Button';
 import Text from '../ui/Text';
 

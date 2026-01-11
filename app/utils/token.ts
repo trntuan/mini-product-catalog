@@ -1,5 +1,5 @@
 import {getSecureValue, setSecureValue} from './keyChain';
-import { KEYCHAIN_KEYS } from '../types/constants';
+import { KEYCHAIN_KEYS } from '../../constants/app';
 /**
  * Request ACCESS TOKEN using REFRESH TOKEN
  * - ONLY request if there is refresh token present

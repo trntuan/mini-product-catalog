@@ -4,38 +4,7 @@
  */
 
 import {httpService, ENDPOINTS, PaginationParams} from '../api';
-
-// Types
-export interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  discountPercentage: number;
-  rating: number;
-  stock: number;
-  brand: string;
-  category: string;
-  thumbnail: string;
-  images: string[];
-}
-
-export interface ProductsResponse {
-  products: Product[];
-  total: number;
-  skip: number;
-  limit: number;
-}
-
-export interface SearchProductsParams extends PaginationParams {
-  q: string;
-}
-
-export interface Category {
-  slug: string;
-  name: string;
-  url: string;
-}
+import type {Category, Product, ProductsResponse, SearchProductsParams} from '../types/products';
 
 class ProductsService {
   /**

@@ -7,16 +7,16 @@ import {
   View,
 } from 'react-native';
 
-import { Button } from '../../components/ui/Button/Button';
-import Layout from '../../components/ui/Layout';
+import { CONTENT_KEYS } from '@/constants/content';
 import ProductDescription from '../../components/products/ProductDescription';
 import ProductHeader from '../../components/products/ProductHeader';
 import ProductImageCarousel from '../../components/products/ProductImageCarousel';
 import ProductInfoCard from '../../components/products/ProductInfoCard';
+import { Button } from '../../components/ui/Button/Button';
+import Layout from '../../components/ui/Layout';
 import Text from '../../components/ui/Text';
 import { useImageCarousel, useProductDetail, useStarRating } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
 import type { ProductDetailRouteProp } from '../../types/navigation';
 import { getImageWidth } from '../../utils/dimensions';
 

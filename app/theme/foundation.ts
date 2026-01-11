@@ -1,12 +1,13 @@
-// Types
-interface spacingType {
+// Theme Tokens
+
+export interface SpacingType {
   borderRadius: number;
   layoutPaddingH: number;
   containerPaddingV: number;
   cardMarginB: number;
 }
 
-interface typeSizesType {
+export interface TypeSizesType {
   FONT_SIZE_SMALL: number;
   FONT_SIZE_MEDIUM: number;
   FONT_SIZE_LARGE: number;
@@ -15,7 +16,7 @@ interface typeSizesType {
   FONT_WEIGHT_HEAVY: number;
 }
 
-export interface themeType {
+export interface ThemeType {
   name: string;
   color: string;
   primary: string;
@@ -29,17 +30,36 @@ export interface themeType {
   error: string;
 }
 
+export const colors = {
+  white: '#FFFFFF',
+  black: '#000000',
+  borderLight: '#E0E0E0',
+  borderMuted: '#D5D9D9',
+  borderMid: '#CCCCCC',
+  surfaceMuted: '#F0F0F0',
+  googleBlue: '#4285F4',
+  heartActive: '#FF6B6B',
+} as const;
+
+export const radii = {
+  xs: 8,
+  sm: 10,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  pill: 999,
+} as const;
 
 // Spacing:- Common margins and paddings (inspired style)
-const spacing: spacingType = {
+export const spacing: SpacingType = {
   borderRadius: 8,
   layoutPaddingH: 16,
   containerPaddingV: 22,
   cardMarginB: 12,
 };
 
-  // Type Sizes:- Font sizes and weights (inspired style)
-const typeSizes: typeSizesType = {
+// Type Sizes:- Font sizes and weights (inspired style)
+export const typeSizes: TypeSizesType = {
   FONT_SIZE_LARGE: 18,
   FONT_SIZE_MEDIUM: 14,
   FONT_SIZE_SMALL: 12,
@@ -48,39 +68,17 @@ const typeSizes: typeSizesType = {
   FONT_WEIGHT_HEAVY: 700,
 };
 
-const typeVariants = {
-  titleLarge: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: typeSizes.FONT_SIZE_LARGE,
-  },
-  titleSmall: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: typeSizes.FONT_SIZE_SMALL,
-  },
-  bodyMedium: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: typeSizes.FONT_SIZE_MEDIUM,
-  },
-  bodySmall: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: typeSizes.FONT_SIZE_SMALL,
-  },
-};
-
 // Theme:- inspired color palette
-const theme: themeType = {
+export const theme: ThemeType = {
   name: 'light',
   color: '#131921', // text
   primary: '#FF9900', //  orange
   primarySoft: '#FFF2D9', // Soft orange wash
   layoutBg: '#F6F3ED', // light background
-  cardBg: '#FFFFFF',
+  cardBg: colors.white,
   cardBorderColor: '#E6E0D6', // border
   accent: '#007185', //  blue accent
   accentSoft: '#E3F2F4', // Soft blue wash
   textMuted: '#5C6772',
   error: '#C40000', // red
 };
-
-export { spacing, theme, typeSizes, typeVariants };
-

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
-import { spacing, typeSizes } from '../../theme/theme';
+import { colors, spacing, typeSizes } from '../../theme';
 
 const Input = ({style, error, ...rest}: any) => {
   const {theme} = useTheme();
@@ -34,12 +34,12 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 48,
-    borderColor: '#D5D9D9',
+    borderColor: colors.borderMuted,
     borderWidth: 1,
     borderRadius: spacing.borderRadius,
     paddingHorizontal: 14,
     fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
   },
   error: {
     fontSize: typeSizes.FONT_SIZE_SMALL,

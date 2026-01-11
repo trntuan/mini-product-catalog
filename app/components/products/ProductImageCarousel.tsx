@@ -9,6 +9,7 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import Text from '../ui/Text';
 import { getImageWidth, getScreenWidth } from '../../utils/dimensions';
 import { useTheme } from '../../hooks/useTheme';
+import { colors } from '../../theme';
 
 interface ProductImageCarouselProps {
   images: string[];
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 12,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.surfaceMuted,
   },
   imageIndicator: {
     position: 'absolute',
@@ -89,6 +90,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   imageIndicatorText: {
-    color: '#ffffff',
+    color: colors.white,
   },
 });

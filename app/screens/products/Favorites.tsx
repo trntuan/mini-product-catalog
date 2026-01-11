@@ -7,17 +7,17 @@ import {
   View
 } from 'react-native';
 
-import Layout from '../../components/ui/Layout';
+import { CONTENT_KEYS } from '@/constants/content';
+import { ROUTE_NAMES, ROUTE_PARAMS } from '../../../constants/app';
 import NotFound from '../../components/feedback/NotFound';
 import ProductItem from '../../components/products/ProductItem';
+import Layout from '../../components/ui/Layout';
 import Text from '../../components/ui/Text';
 import { useFavoriteProducts } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
-import { ROUTE_NAMES, ROUTE_PARAMS } from '../../types/constants';
-import { CONTENT_KEYS } from '../../types/content';
 import type { FavoritesNavigationProp } from '../../types/navigation';
 
-import { Product } from '../../store/productsSlice';
+import type { Product } from '../../types/products';
 
 export default function Favorites() {
   const {theme} = useTheme();

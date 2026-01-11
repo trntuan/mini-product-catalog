@@ -2,10 +2,10 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { CONTENT_KEYS } from '@/constants/content';
+import NotFound from '../feedback/NotFound';
 import { Button } from '../ui/Button/Button';
 import Text from '../ui/Text';
-import NotFound from '../feedback/NotFound';
 
 interface ProductsEmptyStateProps {
   hasActiveFilters: boolean;

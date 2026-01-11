@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { ApiException } from '../api';
 import { authService } from '../services';
 import { updateUser } from '../store/userSlice';
-import { KEYCHAIN_KEYS } from '../types/constants';
+import { KEYCHAIN_KEYS } from '../../constants/app';
 import type { ValuesType } from '../types/auth';
 import { transformToFormikErrors } from '../utils/form';
 import { setSecureValue } from '../utils/keyChain';

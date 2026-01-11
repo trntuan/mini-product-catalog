@@ -5,11 +5,11 @@
 import React from 'react';
 
 // Import theme from theme file
-import { theme, themeType } from '../theme/theme';
+import { theme, ThemeType } from '../theme/foundation';
 
 // Types
 export interface ThemeContextInterface {
-  theme: themeType;
+  theme: ThemeType;
 }
 
 interface ThemeProviderInterface {

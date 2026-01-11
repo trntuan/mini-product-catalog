@@ -1,32 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { Category, productsService } from '../services';
+import { productsService } from '../services';
+import type { Category, Product, ProductsResponse } from '../types/products';
 import {
   loadProductsFromCache,
   saveProductsToCache
 } from '../utils/productsCache';
-
-// Types
-export interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  discountPercentage: number;
-  rating: number;
-  stock: number;
-  brand: string;
-  category: string;
-  thumbnail: string;
-  images: string[];
-}
-
-export interface ProductsResponse {
-  products: Product[];
-  total: number;
-  skip: number;
-  limit: number;
-}
 
 type ProductsState = {
   status: 'idle' | 'loading' | 'success' | 'failed';

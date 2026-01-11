@@ -16,12 +16,13 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // Hook for theme change (Light/Dark Mode)
 import { useTheme } from '../hooks/useTheme';
-import { themeType, typeVariants } from '../theme/theme';
+import { ThemeType } from '../theme/foundation';
+import { typeVariants } from '../theme/typography';
 // Get Value from Keyring (Encrypted token)
 import { getSecureValue } from '../utils/keyChain';
 // Redux slice for updating Access Token to store
 import { updateToken } from '@/app/store/userSlice';
-import { KEYCHAIN_KEYS } from '../types/constants';
+import { KEYCHAIN_KEYS } from '../../constants/app';
 
 
 // Screens
@@ -56,7 +57,7 @@ const ROUTE_NAMES = {
 } as const;
 
 // Helper function to get common stack navigator screen options
-const getStackScreenOptions = (theme: themeType) => ({
+const getStackScreenOptions = (theme: ThemeType) => ({
   headerStyle: {
     backgroundColor: theme.cardBg,
     elevation: 0,

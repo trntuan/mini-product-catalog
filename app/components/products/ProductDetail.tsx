@@ -8,11 +8,12 @@ import { useCallback, useEffect } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { CONTENT_KEYS } from '@/constants/content';
 import { useTheme } from '../../hooks/useTheme';
+import { colors } from '../../theme';
 import { toggleFavorite } from '../../store/favoritesSlice';
 import { clearProductDetail, fetchProductById } from '../../store/productsSlice';
 import { AppDispatch, RootState } from '../../store/store';
-import { CONTENT_KEYS } from '../../types/content';
 
 export function useProductDetail(productId: number) {
   const {theme} = useTheme();
@@ -68,7 +69,7 @@ export function useProductDetail(productId: number) {
           <Ionicons
             name={isFavorite ? 'heart' : 'heart-outline'}
             size={24}
-            color={isFavorite ? '#FF6B6B' : theme.color}
+            color={isFavorite ? colors.heartActive : theme.color}
           />
         </TouchableOpacity>
       ),

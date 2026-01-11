@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { authService } from '../services';
 import { updateUser } from '../store/userSlice';
-import { KEYCHAIN_KEYS } from '../types/constants';
+import { KEYCHAIN_KEYS } from '../../constants/app';
 import { getSecureValue } from '../utils/keyChain';
 
 export function useRestoreUser() {

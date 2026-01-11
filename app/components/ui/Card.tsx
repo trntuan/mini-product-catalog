@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
-import { spacing } from '../../theme/theme';
+import { colors, spacing } from '../../theme';
 import { CardPropsType } from '../../types/components';
 
 const Card = ({children, style}: CardPropsType) => {
@@ -23,15 +23,15 @@ export default Card;
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     paddingHorizontal: spacing.layoutPaddingH,
     paddingVertical: spacing.layoutPaddingH,
     borderRadius: spacing.borderRadius,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#fff',
+    borderColor: colors.white,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: {width: 0, height: 6},
         shadowOpacity: 0.08,
         shadowRadius: 12,

@@ -12,8 +12,9 @@ import Layout from '../../components/ui/Layout';
 import Text from '../../components/ui/Text';
 import { useAuth } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
+import { colors } from '../../theme';
 import type { ValuesType } from '../../types/auth';
-import { CONTENT_KEYS } from '../../types/content';
+import { CONTENT_KEYS } from '@/constants/content';
 
 const AppIcon = require('@/assets/images/appicon.png');
 
@@ -104,7 +105,7 @@ const Login = () => {
                       }}
                       testID="Login.GoogleButton"
                       disabled={isLoading}>
-                      <Ionicons name="logo-google" size={20} color="#4285F4" style={styles.googleIcon} />
+                      <Ionicons name="logo-google" size={20} color={colors.googleBlue} style={styles.googleIcon} />
                       <Text style={[styles.googleButtonText, {color: theme.color}]}>
                         {CONTENT_KEYS.BUTTONS.CONTINUE_WITH_GOOGLE}
                       </Text>

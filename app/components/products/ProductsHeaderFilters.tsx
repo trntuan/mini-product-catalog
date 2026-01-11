@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { useTheme } from '../../hooks/useTheme';
-import { CONTENT_KEYS } from '../../types/content';
+import { CONTENT_KEYS } from '@/constants/content';
 
 interface ProductsHeaderFiltersProps {
   selectedCategory: string | null;

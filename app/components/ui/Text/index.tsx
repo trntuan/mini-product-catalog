@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Text as RNText, StyleProp, StyleSheet, TextStyle } from 'react-native';
 
+import { typeVariants } from '../../../theme/typography';
 import { useTheme } from '../../../hooks/useTheme';
-import { typeVariants } from '../../../theme/theme';
 
 type TextVariantTypes = typeof typeVariants;
 

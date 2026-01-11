@@ -4,10 +4,9 @@ import {
   FlatList,
   RefreshControl,
   StyleSheet,
-  View,
 } from 'react-native';
 
-import Layout from '../../components/ui/Layout';
+import { ROUTE_NAMES, ROUTE_PARAMS } from '../../../constants/app';
 import OfflineBanner from '../../components/feedback/OfflineBanner';
 import ProductItem from '../../components/products/ProductItem';
 import ProductsCategoryModal from '../../components/products/ProductsCategoryModal';
@@ -18,12 +17,12 @@ import ProductsHeaderSearch from '../../components/products/ProductsHeaderSearch
 import ProductsListFooter from '../../components/products/ProductsListFooter';
 import ProductsLoadingState from '../../components/products/ProductsLoadingState';
 import ProductsSortModal from '../../components/products/ProductsSortModal';
+import Layout from '../../components/ui/Layout';
 import { useProducts } from '../../hooks';
 import { useTheme } from '../../hooks/useTheme';
-import { ROUTE_NAMES, ROUTE_PARAMS } from '../../types/constants';
 import type { ProductsNavigationProp } from '../../types/navigation';
 
-import { Product } from '../../store/productsSlice';
+import type { Product } from '../../types/products';
 
 export default function Products() {
   const {theme} = useTheme();
